@@ -24,7 +24,9 @@ public:
     };
     Serial(): SendType(SERIAL_CHARACTER) {}
     void Init();
-    void Do();
+    void Transmit(const uint8_t* buffer, uint8_t size) const;
+    void Transmit(const uint8_t* buffer) const;
+    void Do() const;
 private:
     const uint8_t SendType;
 };

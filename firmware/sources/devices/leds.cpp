@@ -3,6 +3,7 @@
 * @brief Board leds implementation
 */
 #include "leds.hpp"
+#include "pwm.hpp"
 
 /*
 * Short description:

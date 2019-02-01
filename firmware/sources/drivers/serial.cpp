@@ -4,7 +4,6 @@
 */
 #include "serial.hpp"
 #include <ch.h>
-#include <chprintf.h>
 
 
 /*
@@ -42,10 +41,27 @@ void Serial::Init()
 }
 
 
-
-void Serial::Do()
+void Serial::Transmit(const uint8_t* buffer, uint8_t size) const
 {
-    // Send one byte / one character
-    sdPut( &SD6, 'a' );
-    chThdSleepMilliseconds( 500 );
+    for(uint_fast8_t byteIndex = 0; byteIndex < size; byteIndex++)
+    {
+        sdPut( &SD6, *buffer++ );
+    }
+}
+
+
+void Serial::Transmit(const uint8_t* buffer) const
+{
+    while(*buffer != '\n')
+    {
+        sdPut( &SD6, *buffer++ );
+    }
+    sdPut( &SD6, '\n' );
+    sdPut( &SD6, '\r' );
+}
+
+
+void Serial::Do() const
+{
+
 }
