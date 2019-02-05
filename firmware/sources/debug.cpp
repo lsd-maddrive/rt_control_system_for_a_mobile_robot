@@ -26,8 +26,7 @@ static THD_FUNCTION(DebugThread, arg)
 {
     arg = arg;
 
-    Serial serial;
-    serial.Init();
+    Serial* debug = Serial::GetInstance(Serial::Serial_6);
 
     Adc::Start();
 
@@ -38,8 +37,8 @@ static THD_FUNCTION(DebugThread, arg)
             uint8_t str[15] = {0};
             num = chVTGetSystemTime();
             num2str(num, str);
-            serial.Transmit(reinterpret_cast<const uint8_t*>(str), 15);
-            serial.Transmit(reinterpret_cast<const uint8_t*>("  "), 2);
+            debug->Transmit(reinterpret_cast<const uint8_t*>(str), 15);
+            debug->Transmit(reinterpret_cast<const uint8_t*>("  "), 2);
         }
 
         for(uint8_t i = 0; i < 4; i++)
@@ -49,11 +48,11 @@ static THD_FUNCTION(DebugThread, arg)
 
             num = Adc::Buffer[i];
             num2str(num, str);
-            serial.Transmit(reinterpret_cast<const uint8_t*>(str), 15);
-            serial.Transmit(reinterpret_cast<const uint8_t*>("  "), 2);
+            debug->Transmit(reinterpret_cast<const uint8_t*>(str), 15);
+            debug->Transmit(reinterpret_cast<const uint8_t*>("  "), 2);
         }
 
-        serial.Transmit(reinterpret_cast<const uint8_t*>("\n\r"), 2);
+        debug->Transmit(reinterpret_cast<const uint8_t*>("\n\r"), 2);
         chThdSleepMilliseconds(3000);
     }
 }

@@ -13,9 +13,6 @@ int main(void)
     chSysInit();
     halInit();
 
-    //Led::Init();
-    //Led::StartBlink();
-
     Pwm led1, led2;
     led1.Create(Pwm::PIN_PB0);
     led2.Create(Pwm::PIN_PB7);

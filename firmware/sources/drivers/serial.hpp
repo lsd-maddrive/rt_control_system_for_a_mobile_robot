@@ -7,28 +7,28 @@
 
 #include <hal.h>
 
+
 /**
 * @brief Serial driver
 */
 class Serial
 {
 public:
-    enum
+    enum SerialNumber_t
     {
-        SERIAL_CHARACTER =          0x00,
-        SERIAL_BYTE_ARRAY =         0x01,
-        SERIAL_UINT32 =             0x02,
-        SERIAL_STRING =             0x03,
-        SERIAL_FORMATTED_STRING =   0x04,
-        SERIAL_MATLAB =             0x05,
+        Serial_6 = 1,
+        Serial_7 = 2,
     };
-    Serial(): SendType(SERIAL_CHARACTER) {}
-    void Init();
+    static Serial* GetInstance(SerialNumber_t);
     void Transmit(const uint8_t* buffer, uint8_t size) const;
     void Transmit(const uint8_t* buffer) const;
-    void Do() const;
 private:
-    const uint8_t SendType;
+    Serial() = delete;
+    Serial(SerialNumber_t);
+    Serial(const Serial&) = delete;
+    Serial& operator=(const Serial&) = delete;
+
+    SerialDriver* Driver;
 };
 
 #endif /* SERIAL_HPP */

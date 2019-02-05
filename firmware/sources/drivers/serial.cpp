@@ -15,53 +15,92 @@
 */
 
 
-void Serial::Init()
+/// Static objects:
+static Serial* serial6;
+static Serial* serial7;
+
+static bool isSerialSixthBusy = false;
+static bool isSerialSeventhBusy = false;
+
+
+/**
+* @brief Init Serial
+* @param[in] - Serial number
+* @note Instance of classical singleton with several instances
+*/
+Serial* Serial::GetInstance(SerialNumber_t serialNumber)
 {
-    // Set Baudrate, directly number.
-    // No need to set CR1, CCR2 and CCR3.
-    // If need to set one of registers use USART_CR1_*, USART_CR2_* or USART_CR3_*.
-    // CRM says that USART_CR2_LINEN enables error detection,
-    // so this should work without this USART_CR2_LINEN
     const SerialConfig sdcfg =
     {
-      .speed = 115200,
-      .cr1 = 0,
-      .cr2 = 0,
-      .cr3 = 0
+         .speed = 115200,
+         .cr1 = 0,
+         .cr2 = 0,
+         .cr3 = 0
     };
 
-    // As 6th driver is used, use SD6 structure for driver functions
-    sdStart( &SD6, &sdcfg );
-
-    // https://os.mbed.com/platforms/ST-Nucleo-F767ZI/
-    // serial 6th driver is on PG_14, PG_9
-    // alternate function is 8th (check datasheet)
-    palSetPadMode( GPIOG, 14, PAL_MODE_ALTERNATE(8) );  // TX = PG_14
-    palSetPadMode( GPIOG, 9, PAL_MODE_ALTERNATE(8) );   // RX = PG_9
+    if((serialNumber == Serial_6) && (isSerialSixthBusy == false))
+    {
+        sdStart( &SD6, &sdcfg );
+        palSetPadMode( GPIOG, 14, PAL_MODE_ALTERNATE(8) );  // TX
+        palSetPadMode( GPIOG, 9, PAL_MODE_ALTERNATE(8) );   // RX
+        isSerialSeventhBusy = true;
+        return serial6;
+    }
+    else if((serialNumber == Serial_7) && (isSerialSeventhBusy == false))
+    {
+        sdStart( &SD7, &sdcfg );
+        palSetPadMode( GPIOE, 8, PAL_MODE_ALTERNATE(8) );   // TX
+        palSetPadMode( GPIOE, 7, PAL_MODE_ALTERNATE(8) );   // RX
+        isSerialSeventhBusy = true;
+        return serial7;
+    }
+    return nullptr;
 }
+
+
+/**
+* @brief Constructor of Serial
+* @param[in] - Serial number
+* @note Instance of classical singleton with several instances
+*/
+Serial::Serial(SerialNumber_t serialNumber)
+{
+    if(serialNumber == Serial_6)
+    {
+        Driver = &SD6;
+    }
+    else if(serialNumber == Serial_7)
+    {
+        Driver = &SD7;
+    }
+}
+
+
 
 
 void Serial::Transmit(const uint8_t* buffer, uint8_t size) const
 {
-    for(uint_fast8_t byteIndex = 0; byteIndex < size; byteIndex++)
+    if(Driver != nullptr)
     {
-        sdPut( &SD6, *buffer++ );
+        for(uint_fast8_t byteIndex = 0; byteIndex < size; byteIndex++)
+        {
+            sdPut( &SD6, *buffer++ );
+        }
     }
 }
 
 
 void Serial::Transmit(const uint8_t* buffer) const
 {
-    while(*buffer != '\n')
+    if(Driver != nullptr)
     {
-        sdPut( &SD6, *buffer++ );
+        while(*buffer != '\n')
+        {
+            sdPut( &SD6, *buffer++ );
+        }
+        sdPut( Driver, '\n' );
+        sdPut( Driver, '\r' );
     }
-    sdPut( &SD6, '\n' );
-    sdPut( &SD6, '\r' );
 }
 
 
-void Serial::Do() const
-{
-
-}
