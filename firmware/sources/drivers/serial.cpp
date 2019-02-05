@@ -76,27 +76,37 @@ Serial::Serial(SerialNumber_t serialNumber)
 }
 
 
-
-
+/**
+* @brief Transmit buffer to port
+* @param[in] buffer - buffer with message
+* @param[in] size - buffer size
+*/
 void Serial::Transmit(const uint8_t* buffer, uint8_t size) const
 {
     if(Driver != nullptr)
     {
         for(uint_fast8_t byteIndex = 0; byteIndex < size; byteIndex++)
         {
-            sdPut( &SD6, *buffer++ );
+            sdPut( Driver, *buffer++ );
         }
     }
 }
 
 
+/**
+* @brief Transmit c-string to port
+* @param[in] buffer - c-string with message
+* @note buffer must end with a character '\n'
+* For safety the buffer length must be less than 128.
+*/
 void Serial::Transmit(const uint8_t* buffer) const
 {
     if(Driver != nullptr)
     {
-        while(*buffer != '\n')
+        uint8_t iteration = 0;
+        while((*buffer != '\n') && (iteration++ < 128))
         {
-            sdPut( &SD6, *buffer++ );
+            sdPut( Driver, *buffer++ );
         }
         sdPut( Driver, '\n' );
         sdPut( Driver, '\r' );
