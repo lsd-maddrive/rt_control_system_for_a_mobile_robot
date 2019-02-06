@@ -16,9 +16,6 @@
 
 
 /// Static objects:
-static Serial* serial6;
-static Serial* serial7;
-
 static bool isSerialSixthBusy = false;
 static bool isSerialSeventhBusy = false;
 
@@ -40,20 +37,23 @@ Serial* Serial::GetInstance(SerialNumber_t serialNumber)
 
     if((serialNumber == Serial_6) && (isSerialSixthBusy == false))
     {
+        static Serial instanceSerial6(Serial_6);
         sdStart( &SD6, &sdcfg );
         palSetPadMode( GPIOG, 14, PAL_MODE_ALTERNATE(8) );  // TX
         palSetPadMode( GPIOG, 9, PAL_MODE_ALTERNATE(8) );   // RX
         isSerialSeventhBusy = true;
-        return serial6;
+        return &instanceSerial6;
     }
     else if((serialNumber == Serial_7) && (isSerialSeventhBusy == false))
     {
+        static Serial instanceSerial7(Serial_7);
         sdStart( &SD7, &sdcfg );
         palSetPadMode( GPIOE, 8, PAL_MODE_ALTERNATE(8) );   // TX
         palSetPadMode( GPIOE, 7, PAL_MODE_ALTERNATE(8) );   // RX
         isSerialSeventhBusy = true;
-        return serial7;
+        return &instanceSerial7;
     }
+
     return nullptr;
 }
 

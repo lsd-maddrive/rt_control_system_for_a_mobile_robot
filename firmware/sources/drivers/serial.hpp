@@ -22,9 +22,10 @@ public:
     static Serial* GetInstance(SerialNumber_t);
     void Transmit(const uint8_t* buffer, uint8_t size) const;
     void Transmit(const uint8_t* buffer) const;
+    Serial(SerialNumber_t);
 private:
     Serial() = delete;
-    Serial(SerialNumber_t);
+
     Serial(const Serial&) = delete;
     Serial& operator=(const Serial&) = delete;
 
