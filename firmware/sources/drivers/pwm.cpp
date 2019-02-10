@@ -45,6 +45,7 @@ void Pwm::Create(Pin_t pin)
 
     switch(pin)
     {
+        /*
         case PIN_PB0:
         {
             PwmDriver = &PWMD3;
@@ -54,6 +55,7 @@ void Pwm::Create(Pin_t pin)
             palSetPadMode( GPIOB, 0, PAL_MODE_ALTERNATE(2) );
             break;
         }
+        */
         case PIN_PB7:
         {
             PwmDriver = &PWMD4;
