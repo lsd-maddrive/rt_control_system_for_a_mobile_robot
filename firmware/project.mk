@@ -2,7 +2,8 @@
 PROJECT_CSRC 	= 
 PROJECT_CPPSRC 	= sources/devices/leds.cpp \
 				  sources/devices/adc.cpp \
-				  sources/devices/pwm.cpp \
+				  sources/devices/motors.cpp \
+				  sources/drivers/pwm.cpp \
 				  sources/drivers/serial.cpp \
 				  sources/text.cpp \
 				  sources/debug.cpp \
