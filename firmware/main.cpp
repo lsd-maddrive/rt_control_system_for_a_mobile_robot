@@ -1,13 +1,23 @@
 #include <ch.h>
 #include <hal.h>
-
 #include <chprintf.h>
-#include "leds.hpp"
-#include "serial.hpp"
-#include "adc.hpp"
-#include "pwm.hpp"
-#include "debug.hpp"
+#include "ros.hpp"
 
+
+int main()
+{
+    chSysInit();
+    halInit();
+    RosDriver::Init();
+
+    while(1)
+    {
+        RosDriver::Publish();
+    }
+}
+
+
+/*
 int main(void)
 {
     chSysInit();
@@ -36,3 +46,4 @@ int main(void)
 
     }
 }
+*/
