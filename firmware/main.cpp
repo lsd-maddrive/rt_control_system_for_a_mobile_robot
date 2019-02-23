@@ -2,17 +2,19 @@
 #include <hal.h>
 #include <chprintf.h>
 #include "ros.hpp"
+#include "leds.hpp"
 
 
 int main()
 {
     chSysInit();
     halInit();
+    Leds::Init();
     RosDriver::Init();
 
     while(1)
     {
-        RosDriver::Publish();
+        chThdSleepMilliseconds(100);
     }
 }
 

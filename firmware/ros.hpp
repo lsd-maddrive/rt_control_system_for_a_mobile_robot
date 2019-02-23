@@ -7,8 +7,6 @@
 
 #include <ch.h>
 
-
-
 class RosDriver
 {
 public:

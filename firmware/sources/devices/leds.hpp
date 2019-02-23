@@ -11,11 +11,10 @@
 /**
 * @brief Board leds
 */
-class Led
+class Leds
 {
 public:
     static void Init();
-    static void StartBlink();
 
     static void OnFirst();
     static void OffFirst();
