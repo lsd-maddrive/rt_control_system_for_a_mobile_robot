@@ -3,6 +3,7 @@
 #include <chprintf.h>
 #include "ros.hpp"
 #include "leds.hpp"
+#include "encoder.hpp"
 
 
 int main()
@@ -11,41 +12,17 @@ int main()
     halInit();
     Leds::Init();
     RosDriver::Init();
+    Encoder::Init();
 
     while(1)
     {
-        chThdSleepMilliseconds(100);
+        static int32_t leftValue = 0;
+        static int32_t rightValue = 0;
+        leftValue++;
+        rightValue += 3;
+        Encoder::SetLeftValue(leftValue);
+        Encoder::SetRightValue(rightValue);
+
+        chThdSleepMilliseconds(200);
     }
 }
-
-
-/*
-int main(void)
-{
-    chSysInit();
-    halInit();
-
-    Pwm led1, led2;
-    led1.Create(Pwm::PIN_PB0);
-    led2.Create(Pwm::PIN_PB7);
-
-    Debug::StartShowingSystemInfo();
-    while (true)
-    {
-
-        for(int8_t dc = 0; dc <= 50; dc += 10)
-        {
-            led1.Start(dc);
-            led2.Start(50 - dc);
-            chThdSleepMilliseconds(50);
-        }
-        for(int8_t dc = 50; dc >= 0; dc -= 1)
-        {
-            led1.Start(dc);
-            led2.Start(50 - dc);
-            chThdSleepMilliseconds(50);
-        }
-
-    }
-}
-*/

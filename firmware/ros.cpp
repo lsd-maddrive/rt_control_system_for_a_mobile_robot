@@ -4,8 +4,9 @@
 */
 
 #include "ros.hpp"
-#include "pwm.hpp"
+#include "encoder.hpp"
 #include "leds.hpp"
+
 
 #include "ros.h"
 #include "std_msgs/String.h"
@@ -13,6 +14,7 @@
 #include "std_msgs/Float32.h"
 #include "std_msgs/UInt8.h"
 #include "geometry_msgs/Point32.h"
+#include "geometry_msgs/Twist.h"
 
 #include <ch.h>
 #include <hal.h>
@@ -54,6 +56,7 @@ static std_msgs::Int32 EncoderRightMsg;
 static std_msgs::Float32 EncoderLeftSpeedMsg;
 static std_msgs::Float32 EncoderRightSpeedMsg;
 static geometry_msgs::Point32 PositionMsg;
+static geometry_msgs::Twist TurtleMsg;
 // 3. Topics are named buses over which nodes exchange messages.
 static ros::Publisher TestTopic("testTopic", &TestStringMsg);
 static ros::Publisher EncoderLeftTopic("encoderLeftTopic", &EncoderLeftMsg);
@@ -61,6 +64,7 @@ static ros::Publisher EncoderRightTopic("encoderRightTopic", &EncoderRightMsg);
 static ros::Publisher EncoderLeftSpeedTopic("encoderLeftSpeedTopic", &EncoderLeftSpeedMsg);
 static ros::Publisher EncoderRightSpeedTopic("encoderRightSpeedTopic", &EncoderRightSpeedMsg);
 static ros::Publisher PositionTopic("PositionTopic", &PositionMsg);
+static ros::Publisher TurtleTopic("turtle1/cmd_vel", &TurtleMsg);
 
 ros::Subscriber<std_msgs::UInt8> LedPowerTopic("LedPowerTopic", &ledPowerCallback);
 
@@ -77,11 +81,21 @@ static THD_FUNCTION(RosPublisherThread, arg)
         TestStringMsg.data = "hello";
         TestTopic.publish( &TestStringMsg );
 
-        EncoderLeftMsg.data++;
+        EncoderLeftMsg.data = Encoder::GetLeftValue();
         EncoderLeftTopic.publish( &EncoderLeftMsg );
 
-        EncoderRightMsg.data++;
+        EncoderRightMsg.data = Encoder::GetRightValue();
         EncoderRightTopic.publish( &EncoderRightMsg );
+
+        EncoderLeftSpeedMsg.data = Encoder::GetLeftSpeed();
+        EncoderLeftSpeedTopic.publish( &EncoderLeftSpeedMsg );
+
+        EncoderRightSpeedMsg.data = Encoder::GetRightSpeed();
+        EncoderRightSpeedTopic.publish( &EncoderRightSpeedMsg );
+
+        TurtleMsg.linear.x = 2;
+        TurtleMsg.angular.z = 2;
+        TurtleTopic.publish( &TurtleMsg );
 
         RosNode.spinOnce();
         chThdSleepMilliseconds(1000);
@@ -96,6 +110,9 @@ void RosDriver::Init()
     RosNode.advertise(TestTopic);
     RosNode.advertise(EncoderLeftTopic);
     RosNode.advertise(EncoderRightTopic);
+    RosNode.advertise(EncoderLeftSpeedTopic);
+    RosNode.advertise(EncoderRightSpeedTopic);
+    RosNode.advertise(TurtleTopic);
 
     RosNode.subscribe(LedPowerTopic);
 

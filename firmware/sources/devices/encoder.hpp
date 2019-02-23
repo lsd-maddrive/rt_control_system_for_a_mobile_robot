@@ -5,9 +5,7 @@
 #ifndef ENCODER_HPP
 #define ENCODER_HPP
 
-#include <ch.h>
-#include <hal.h>
-
+#include <stdint.h>
 
 /**
 * @brief Encoder
@@ -21,6 +19,9 @@ public:
     static int32_t GetRightValue();
     static int32_t GetLeftSpeed();
     static int32_t GetRightSpeed();
+
+    static void SetLeftValue(int32_t numberOfTicks);
+    static void SetRightValue(int32_t numberOfTicks);
 private:
 };
 

@@ -4,9 +4,11 @@
 */
 #include "encoder.hpp"
 
+#include <ch.h>
+#include <hal.h>
+
 /*
 */
-
 
 #define LEFT_ENC_A_CH   10
 #define LEFT_ENC_B_CH   12
@@ -18,31 +20,16 @@ static void left_wheel_a_cb(EXTDriver *extp, expchannel_t channel);
 static void right_wheel_a_cb(EXTDriver *extp, expchannel_t channel);
 static void left_wheel_b_cb(EXTDriver *extp, expchannel_t channel);
 static void right_wheel_b_cb(EXTDriver *extp, expchannel_t channel);
-
 static void speed_tmr_cb ( GPTDriver *speedTmr );
 
 
-static int32_t left_enc_ticks = 0;
-static int32_t right_enc_ticks = 0;
-
-static float left_enc_speed = 0;
-static float right_enc_speed = 0;
-
-static int32_t right_enc_cache = 0;
-static int32_t left_enc_cache = 0;
-
-static GPTDriver* speedTmr = &GPTD3;
-static int32_t tmr_interval = 10000;
-
-static const GPTConfig speedTmrCfg =
-{
-    .frequency      =  100000, // 100 KHz
-    .callback       =  speed_tmr_cb,
-    .cr2            =  0,
-    .dier           =  0U
-};
-
-static float msr_2_sec;
+static int32_t LeftEncoderTicks = 0;
+static int32_t RightEncoderTicks = 0;
+static int32_t RightEncoderTicksCash = 0;
+static int32_t LeftEncoderTicksCash = 0;
+static float LeftEncoderSpeed = 0;
+static float RightEncoderSpeed = 0;
+static float TimerCallbacksPerSecond;
 
 
 /**
@@ -73,12 +60,21 @@ void Encoder::Init()
         }
     };
 
+    const GPTConfig speedTimerCfg =
+    {
+        .frequency      =  100000, // 100 KHz
+        .callback       =  speed_tmr_cb,
+        .cr2            =  0,
+        .dier           =  0U
+    };
 
     extStart( &EXTD1, &extcfg );
 
-    msr_2_sec = speedTmrCfg.frequency / tmr_interval;
-    gptStart( speedTmr, &speedTmrCfg );
-    gptStartContinuous( speedTmr, tmr_interval );
+    GPTDriver* speedTimer = &GPTD3;
+    const int32_t periodInTicks = 10000;
+    TimerCallbacksPerSecond = speedTimerCfg.frequency / periodInTicks;
+    gptStart( speedTimer, &speedTimerCfg );
+    gptStartContinuous( speedTimer, periodInTicks );
 }
 
 
@@ -87,11 +83,11 @@ void Encoder::Init()
 **/
 void Encoder::Reset()
 {
-    right_enc_ticks = 0;
-    left_enc_ticks = 0;
+    RightEncoderTicks = 0;
+    LeftEncoderTicks = 0;
 
-    right_enc_cache = 0;
-    left_enc_cache = 0;
+    RightEncoderTicksCash = 0;
+    LeftEncoderTicksCash = 0;
 }
 
 
@@ -100,7 +96,7 @@ void Encoder::Reset()
 **/
 int32_t Encoder::GetLeftValue()
 {
-    return left_enc_ticks;
+    return LeftEncoderTicks;
 }
 
 
@@ -109,7 +105,25 @@ int32_t Encoder::GetLeftValue()
 **/
 int32_t Encoder::GetRightValue()
 {
-    return right_enc_ticks;
+    return RightEncoderTicks;
+}
+
+
+/**
+* @brief Set number of left encoder ticks
+**/
+void Encoder::SetLeftValue(int32_t numberOfTicks)
+{
+    LeftEncoderTicks = numberOfTicks;
+}
+
+
+/**
+* @brief Set number of right encoder ticks
+**/
+void Encoder::SetRightValue(int32_t numberOfTicks)
+{
+    RightEncoderTicks = numberOfTicks;
 }
 
 
@@ -118,7 +132,7 @@ int32_t Encoder::GetRightValue()
 **/
 int32_t Encoder::GetLeftSpeed()
 {
-    return left_enc_speed;
+    return LeftEncoderSpeed;
 }
 
 
@@ -127,21 +141,21 @@ int32_t Encoder::GetLeftSpeed()
 **/
 int32_t Encoder::GetRightSpeed()
 {
-    return right_enc_speed;
+    return RightEncoderSpeed;
 }
 
 
-static void speed_tmr_cb ( GPTDriver *speedTmr )
+static void speed_tmr_cb ( GPTDriver* speedTimer )
 {
-    speedTmr = speedTmr;
+    speedTimer = speedTimer;
 
-    float right_delta = right_enc_ticks - right_enc_cache;
-    right_enc_cache = right_enc_ticks;
-    right_enc_speed = right_delta * msr_2_sec;
+    float right_delta = RightEncoderTicks - RightEncoderTicksCash;
+    RightEncoderTicksCash = RightEncoderTicks;
+    RightEncoderSpeed = right_delta * TimerCallbacksPerSecond;
 
-    float left_delta = left_enc_ticks - left_enc_cache;
-    left_enc_cache = left_enc_ticks;
-    left_enc_speed = left_delta * msr_2_sec;
+    float left_delta = LeftEncoderTicks - LeftEncoderTicksCash;
+    LeftEncoderTicksCash = LeftEncoderTicks;
+    LeftEncoderSpeed = left_delta * TimerCallbacksPerSecond;
 }
 
 
@@ -152,16 +166,16 @@ static void left_wheel_a_cb(EXTDriver *extp, expchannel_t channel)
     if ( palReadPad( GPIOE, LEFT_ENC_A_CH ) )
     {
         if ( palReadPad( GPIOE, LEFT_ENC_B_CH ) )
-            left_enc_ticks++;
+            LeftEncoderTicks++;
         else
-            left_enc_ticks--;
+            LeftEncoderTicks--;
     }
     else
     {
         if ( palReadPad( GPIOE, LEFT_ENC_B_CH ) )
-            left_enc_ticks--;
+            LeftEncoderTicks--;
         else
-            left_enc_ticks++;
+            LeftEncoderTicks++;
     }
 }
 
@@ -173,16 +187,16 @@ static void right_wheel_a_cb(EXTDriver *extp, expchannel_t channel)
     if ( palReadPad( GPIOE, RIGHT_ENC_A_CH ) )
     {
         if ( palReadPad( GPIOE, RIGHT_ENC_B_CH ) )
-            right_enc_ticks++;
+            RightEncoderTicks++;
         else
-            right_enc_ticks--;
+            RightEncoderTicks--;
     }
     else
     {
         if ( palReadPad( GPIOE, RIGHT_ENC_B_CH ) )
-            right_enc_ticks--;
+            RightEncoderTicks--;
         else
-            right_enc_ticks++;
+            RightEncoderTicks++;
     }
 }
 
@@ -194,16 +208,16 @@ static void left_wheel_b_cb(EXTDriver *extp, expchannel_t channel)
     if ( palReadPad( GPIOE, LEFT_ENC_B_CH ) )
     {
         if ( palReadPad( GPIOE, LEFT_ENC_A_CH ) )
-            left_enc_ticks--;
+            LeftEncoderTicks--;
         else
-            left_enc_ticks++;
+            LeftEncoderTicks++;
     }
     else
     {
         if ( palReadPad( GPIOE, LEFT_ENC_A_CH ) )
-            left_enc_ticks++;
+            LeftEncoderTicks++;
         else
-            left_enc_ticks--;
+            LeftEncoderTicks--;
     }
 }
 
@@ -215,15 +229,15 @@ static void right_wheel_b_cb(EXTDriver *extp, expchannel_t channel)
     if ( palReadPad( GPIOE, RIGHT_ENC_B_CH ) )
     {
         if ( palReadPad( GPIOE, RIGHT_ENC_A_CH ) )
-            right_enc_ticks--;
+            RightEncoderTicks--;
         else
-            right_enc_ticks++;
+            RightEncoderTicks++;
     }
     else
     {
         if ( palReadPad( GPIOE, RIGHT_ENC_A_CH ) )
-            right_enc_ticks++;
+            RightEncoderTicks++;
         else
-            right_enc_ticks--;
+            RightEncoderTicks--;
     }
 }
