@@ -5,6 +5,7 @@
 #include "pwm.hpp"
 #include <ch.h>
 #include <chprintf.h>
+#include <math.h>
 
 
 /*
@@ -16,10 +17,15 @@
 
 
 /**
-* @brief Init Pwm driver
+* @brief Pointers to PWM drivers
+**/
+PWMDriver* PwmDriverLeft    = &PWMD4;
+PWMDriver* PwmDriverRight   = &PWMD2;
+
+
+/**
+* @brief Configuration structure
 * @note It include:
-* 1. Create pointer to PWM driver.
-* 2. Create configuration structure:
 *    - Frequency of base timer;
 *    - Period of PWM measured in base time ticks
 *      To obtain period of PWM: per_time = <.period> / <.frequency> [s]
@@ -32,54 +38,111 @@
 *      PWM_OUTPUT_DISABLED / PWM_OUTPUT_ACTIVE_HIGH / PWM_OUTPUT_ACTIVE_LOW
 *      .callback - callback invoked on channel compare event
 *    - Timer direct registers.
-* 3. Setup PWM pin.
-* 4. Start PWM driver.
 **/
-void Pwm::Create(Pin_t pin)
+PWMConfig PwmConf =
 {
-    PwmConf.frequency = 25000;
-    PwmConf.period = 100;
-    PwmConf.callback = NULL;
-    PwmConf.cr2 = 0;
-    PwmConf.dier = 0;
+    .frequency      = 2000000,
+    .period         = 10000,
+    .callback       = NULL,
+    .channels       = {
+                          {.mode = PWM_OUTPUT_ACTIVE_LOW,   .callback = NULL},
+                          {.mode = PWM_OUTPUT_ACTIVE_LOW,   .callback = NULL},
+                          {.mode = PWM_OUTPUT_ACTIVE_LOW,   .callback = NULL},
+                          {.mode = PWM_OUTPUT_ACTIVE_LOW,   .callback = NULL}
+                      },
+    .cr2            = 0,
+    .dier           = 0
+};
 
-    switch(pin)
-    {
-        /*
-        case PIN_PB0:
-        {
-            PwmDriver = &PWMD3;
-            Channel = CHANNEL_3;
-            PwmConf.channels[CHANNEL_3].mode = PWM_OUTPUT_ACTIVE_HIGH;
-            PwmConf.channels[CHANNEL_3].callback = NULL;
-            palSetPadMode( GPIOB, 0, PAL_MODE_ALTERNATE(2) );
-            break;
-        }
-        */
-        case PIN_PB7:
-        {
-            PwmDriver = &PWMD4;
-            Channel = CHANNEL_2;
-            PwmConf.channels[CHANNEL_2].mode = PWM_OUTPUT_ACTIVE_HIGH;
-            PwmConf.channels[CHANNEL_2].callback = NULL;
-            palSetPadMode( GPIOB, 7, PAL_MODE_ALTERNATE(2) );
-            break;
-        }
-        default:
-        {
-            return;
-        }
-    }
-    pwmStart( PwmDriver, &PwmConf );
+
+/**
+* @brief Coefficient between power and pwm
+**/
+static int32_t PowerToPwm;
+static int8_t MotorLeftDutyCycle = 0;
+static int8_t MotorRightDutyCycle = 0;
+
+
+/**
+* @brief Indexes
+**/
+enum
+{
+    PWM_MOTOR_LEFT_POS_IDX = 0,
+    PWM_MOTOR_LEFT_NEG_IDX = 1,
+    PWM_MOTOR_RIGHT_POS_IDX = 2,
+    PWM_MOTOR_RIGHT_NEG_IDX = 3,
+};
+
+
+/**
+* @brief Init Pwm driver
+* @note It include:
+*   1. Setup PWM pins.
+*   2. Calculate coefficient power to pwm
+*   3. Start PWM drivers.
+**/
+void Pwm::Init()
+{
+    palSetPadMode( GPIOD, 12, PAL_MODE_ALTERNATE(2) );  // PWM4/1
+    palSetPadMode( GPIOD, 13, PAL_MODE_ALTERNATE(2) );  // PWM4/2
+
+    palSetPadMode( GPIOB, 10, PAL_MODE_ALTERNATE(1) );  // PWM2/3
+    palSetPadMode( GPIOB, 11, PAL_MODE_ALTERNATE(1) );  // PWM2/4
+
+    PowerToPwm = PwmConf.period / 100;
+
+    pwmStart( PwmDriverLeft, &PwmConf );
+    pwmStart( PwmDriverRight, &PwmConf );
+}
+
+
+/**
+* @brief Set motor left duty cycle from -100 to +100
+**/
+void Pwm::MotorLeftSetDutyCycle(int8_t dutyCycle)
+{
+    if(dutyCycle < -100)
+        dutyCycle = -100;
+    else if(dutyCycle > 100)
+        dutyCycle = 100;
+
+    MotorLeftDutyCycle = dutyCycle;
+
+    int pwmValue = abs(dutyCycle * PowerToPwm);
+
+    pwmEnableChannel( PwmDriverLeft, PWM_MOTOR_LEFT_POS_IDX, dutyCycle > 0 ? pwmValue : 0 );
+    pwmEnableChannel( PwmDriverLeft, PWM_MOTOR_LEFT_NEG_IDX, dutyCycle < 0 ? pwmValue : 0 );
+}
+
+
+/**
+* @brief Set motor right duty cycle from -100 to +100
+**/
+void Pwm::MotorRightSetDutyCycle(int8_t dutyCycle)
+{
+    if(dutyCycle < -100)
+            dutyCycle = -100;
+        else if(dutyCycle > 100)
+            dutyCycle = 100;
+
+    MotorRightDutyCycle = dutyCycle;
+
+    int pwmValue = abs(dutyCycle * PowerToPwm);
+
+    pwmEnableChannel( PwmDriverRight, PWM_MOTOR_RIGHT_POS_IDX, dutyCycle > 0 ? pwmValue : 0 );
+    pwmEnableChannel( PwmDriverRight, PWM_MOTOR_RIGHT_NEG_IDX, dutyCycle < 0 ? pwmValue : 0 );
+}
+
+
+int8_t Pwm::MotorLeftGetDutyCycle()
+{
+    return MotorLeftDutyCycle;
 }
 
 
 
-void Pwm::Start(uint8_t dutyCycle)
+int8_t Pwm::MotorRightGetDutyCycle()
 {
-    if((dutyCycle >= 0) && (dutyCycle <= 100))
-    {
-        pwmEnableChannel( PwmDriver, Channel, dutyCycle );
-    }
+    return MotorRightDutyCycle;
 }
-
