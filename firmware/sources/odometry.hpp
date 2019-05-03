@@ -1,0 +1,21 @@
+#ifndef ODOMETRY_HPP
+#define ODOMETRY_HPP
+
+#include <ch.h>
+
+
+typedef struct
+{
+    float x, y, dir;
+} OdometryPosition_t;
+
+class Odometry
+{
+public:
+    static void Init();
+    static void Reset();
+    static OdometryPosition_t* GetPosition();
+};
+
+
+#endif /* ODOMETRY_HPP */
