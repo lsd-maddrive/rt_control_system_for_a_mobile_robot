@@ -6,6 +6,8 @@
 #include "ros.hpp"
 #include "encoder.hpp"
 #include "leds.hpp"
+#include "pwm.hpp"
+#include "odometry.hpp"
 
 
 #include "ros.h"
@@ -44,6 +46,28 @@ void ledPowerCallback( const std_msgs::UInt8& msg )
         Leds::OffThird();
 }
 
+void cmdCallback( const geometry_msgs::Twist& msg )
+{
+    float linear = msg.linear.x;
+    float rotation = msg.angular.z;
+
+    if (linear)
+    {
+        Pwm::MotorLeftSetDutyCycle(20 * linear);
+        Pwm::MotorRightSetDutyCycle(20 * linear);
+    }
+    else if (rotation)
+    {
+        Pwm::MotorLeftSetDutyCycle(-20 * rotation);
+        Pwm::MotorRightSetDutyCycle(20 * rotation);
+    }
+    else
+    {
+        Pwm::MotorLeftSetDutyCycle(0);
+        Pwm::MotorRightSetDutyCycle(0);
+    }
+}
+
 
 
 // Ros things:
@@ -55,18 +79,22 @@ static std_msgs::Int32 EncoderLeftMsg;
 static std_msgs::Int32 EncoderRightMsg;
 static std_msgs::Float32 EncoderLeftSpeedMsg;
 static std_msgs::Float32 EncoderRightSpeedMsg;
+static std_msgs::Int32 MotorLeftMsg;
+static std_msgs::Int32 MotorRightMsg;
 static geometry_msgs::Point32 PositionMsg;
-static geometry_msgs::Twist TurtleMsg;
+static geometry_msgs::Twist CmdMsg;
 // 3. Topics are named buses over which nodes exchange messages.
 static ros::Publisher TestTopic("testTopic", &TestStringMsg);
 static ros::Publisher EncoderLeftTopic("encoderLeftTopic", &EncoderLeftMsg);
 static ros::Publisher EncoderRightTopic("encoderRightTopic", &EncoderRightMsg);
 static ros::Publisher EncoderLeftSpeedTopic("encoderLeftSpeedTopic", &EncoderLeftSpeedMsg);
 static ros::Publisher EncoderRightSpeedTopic("encoderRightSpeedTopic", &EncoderRightSpeedMsg);
-static ros::Publisher PositionTopic("PositionTopic", &PositionMsg);
-static ros::Publisher TurtleTopic("turtle1/cmd_vel", &TurtleMsg);
+static ros::Publisher MotorLeftTopic("motorLeftTopic", &MotorLeftMsg);
+static ros::Publisher MotorRightTopic("motorRightTopic", &MotorRightMsg);
+static ros::Publisher PositionTopic("turtlesim/Pose", &PositionMsg);
 
 ros::Subscriber<std_msgs::UInt8> LedPowerTopic("LedPowerTopic", &ledPowerCallback);
+ros::Subscriber<geometry_msgs::Twist> CmdTopic("CmdTopic", &cmdCallback);
 
 
 // ROS thread - use to publish messages
@@ -93,9 +121,16 @@ static THD_FUNCTION(RosPublisherThread, arg)
         EncoderRightSpeedMsg.data = Encoder::GetRightSpeed();
         EncoderRightSpeedTopic.publish( &EncoderRightSpeedMsg );
 
-        TurtleMsg.linear.x = 2;
-        TurtleMsg.angular.z = 2;
-        TurtleTopic.publish( &TurtleMsg );
+        MotorLeftMsg.data = Pwm::MotorLeftGetDutyCycle();
+        MotorLeftTopic.publish( &MotorLeftMsg );
+
+        MotorRightMsg.data = Pwm::MotorRightGetDutyCycle();
+        MotorRightTopic.publish( &MotorRightMsg );
+
+        OdometryPosition_t* position = Odometry::GetPosition();
+        PositionMsg.x = position->x;
+        PositionMsg.y = position->y;
+        PositionTopic.publish( &PositionMsg );
 
         RosNode.spinOnce();
         chThdSleepMilliseconds(1000);
@@ -112,9 +147,13 @@ void RosDriver::Init()
     RosNode.advertise(EncoderRightTopic);
     RosNode.advertise(EncoderLeftSpeedTopic);
     RosNode.advertise(EncoderRightSpeedTopic);
-    RosNode.advertise(TurtleTopic);
+    RosNode.advertise(MotorLeftTopic);
+    RosNode.advertise(MotorRightTopic);
+    RosNode.advertise(PositionTopic);
 
     RosNode.subscribe(LedPowerTopic);
+    RosNode.subscribe(CmdTopic);
+
 
     const SerialConfig sdcfg =
     {

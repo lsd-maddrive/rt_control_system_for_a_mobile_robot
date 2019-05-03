@@ -3,7 +3,9 @@
 #include <chprintf.h>
 #include "ros.hpp"
 #include "leds.hpp"
+#include "pwm.hpp"
 #include "encoder.hpp"
+#include "odometry.hpp"
 
 
 int main()
@@ -11,18 +13,13 @@ int main()
     chSysInit();
     halInit();
     Leds::Init();
+    Pwm::Init();
     RosDriver::Init();
     Encoder::Init();
+    Odometry::Init();
 
     while(1)
     {
-        static int32_t leftValue = 0;
-        static int32_t rightValue = 0;
-        leftValue++;
-        rightValue += 3;
-        Encoder::SetLeftValue(leftValue);
-        Encoder::SetRightValue(rightValue);
-
         chThdSleepMilliseconds(200);
     }
 }

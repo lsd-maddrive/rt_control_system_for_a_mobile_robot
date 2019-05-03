@@ -3,6 +3,7 @@
 * @brief Encoder implementation
 */
 #include "encoder.hpp"
+#include "pwm.hpp"
 
 #include <ch.h>
 #include <hal.h>
@@ -147,6 +148,13 @@ int32_t Encoder::GetRightSpeed()
 
 static void speed_tmr_cb ( GPTDriver* speedTimer )
 {
+    #define ENCODER_SIMULATION
+    #ifdef ENCODER_SIMULATION
+    RightEncoderTicks += Pwm::MotorRightGetDutyCycle() >> 2;
+    LeftEncoderTicks += Pwm::MotorLeftGetDutyCycle() >> 2;
+    #endif
+
+
     speedTimer = speedTimer;
 
     float right_delta = RightEncoderTicks - RightEncoderTicksCash;
