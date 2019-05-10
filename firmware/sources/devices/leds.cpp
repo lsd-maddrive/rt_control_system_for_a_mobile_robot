@@ -3,7 +3,6 @@
 * @brief Board leds implementation
 */
 #include "leds.hpp"
-#include "pwm.hpp"
 
 /*
 * Short description:
@@ -17,8 +16,6 @@ void Leds::Init()
 {
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
     GPIOB->MODER |= (1 << 0) | (1 << 7) | (1 << 14);
-
-
 }
 
 

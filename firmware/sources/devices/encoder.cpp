@@ -3,7 +3,7 @@
 * @brief Encoder implementation
 */
 #include "encoder.hpp"
-#include "pwm.hpp"
+#include "motors.hpp"
 
 #include <ch.h>
 #include <hal.h>
@@ -150,8 +150,8 @@ static void speed_tmr_cb ( GPTDriver* speedTimer )
 {
     #define ENCODER_SIMULATION
     #ifdef ENCODER_SIMULATION
-    RightEncoderTicks += Pwm::MotorRightGetDutyCycle() >> 2;
-    LeftEncoderTicks += Pwm::MotorLeftGetDutyCycle() >> 2;
+    RightEncoderTicks += Motors::GetRightPower() >> 2;
+    LeftEncoderTicks += Motors::GetLeftPower() >> 2;
     #endif
 
 

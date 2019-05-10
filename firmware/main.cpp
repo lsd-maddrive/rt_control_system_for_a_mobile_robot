@@ -3,7 +3,7 @@
 #include <chprintf.h>
 #include "ros.hpp"
 #include "leds.hpp"
-#include "pwm.hpp"
+#include "motors.hpp"
 #include "encoder.hpp"
 #include "odometry.hpp"
 
@@ -13,7 +13,7 @@ int main()
     chSysInit();
     halInit();
     Leds::Init();
-    Pwm::Init();
+    Motors::Init();
     RosDriver::Init();
     Encoder::Init();
     Odometry::Init();

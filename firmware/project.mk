@@ -4,7 +4,6 @@ PROJECT_CPPSRC 	= sources/devices/leds.cpp \
 				  sources/devices/adc.cpp \
 				  sources/devices/motors.cpp \
 				  sources/devices/encoder.cpp \
-				  sources/drivers/pwm.cpp \
 				  sources/drivers/serial.cpp \
 				  sources/text.cpp \
 				  sources/odometry.cpp \

@@ -6,7 +6,7 @@
 #include "ros.hpp"
 #include "encoder.hpp"
 #include "leds.hpp"
-#include "pwm.hpp"
+#include "motors.hpp"
 #include "odometry.hpp"
 
 
@@ -53,18 +53,18 @@ void cmdCallback( const geometry_msgs::Twist& msg )
 
     if (linear)
     {
-        Pwm::MotorLeftSetDutyCycle(20 * linear);
-        Pwm::MotorRightSetDutyCycle(20 * linear);
+        Motors::SetLeftPower(20 * linear);
+        Motors::SetRightPower(20 * linear);
     }
     else if (rotation)
     {
-        Pwm::MotorLeftSetDutyCycle(-20 * rotation);
-        Pwm::MotorRightSetDutyCycle(20 * rotation);
+        Motors::SetLeftPower(-20 * rotation);
+        Motors::SetRightPower(20 * rotation);
     }
     else
     {
-        Pwm::MotorLeftSetDutyCycle(0);
-        Pwm::MotorRightSetDutyCycle(0);
+        Motors::SetLeftPower(0);
+        Motors::SetRightPower(0);
     }
 }
 
@@ -121,10 +121,10 @@ static THD_FUNCTION(RosPublisherThread, arg)
         EncoderRightSpeedMsg.data = Encoder::GetRightSpeed();
         EncoderRightSpeedTopic.publish( &EncoderRightSpeedMsg );
 
-        MotorLeftMsg.data = Pwm::MotorLeftGetDutyCycle();
+        MotorLeftMsg.data = Motors::GetLeftPower();
         MotorLeftTopic.publish( &MotorLeftMsg );
 
-        MotorRightMsg.data = Pwm::MotorRightGetDutyCycle();
+        MotorRightMsg.data = Motors::GetRightPower();
         MotorRightTopic.publish( &MotorRightMsg );
 
         OdometryPosition_t* position = Odometry::GetPosition();

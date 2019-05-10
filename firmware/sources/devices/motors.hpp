@@ -18,6 +18,8 @@ public:
     static void Init();
     static void SetLeftPower(int8_t power);
     static void SetRightPower(int8_t power);
+    static int8_t GetLeftPower();
+    static int8_t GetRightPower();
 private:
 
 };
