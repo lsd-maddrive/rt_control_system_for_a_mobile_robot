@@ -1,41 +1,45 @@
 /**
 * @file adc.cpp
 * @brief Adc driver implementation
+* 
+* Requirements for adc work:       
+* - halconf.h -  Enable HAL   
+* - mcuconf.h -  Choose required ADC unit STM32_ADC_USE_ADC and   
+*                set STM32_ADC_ADCPRE for ADC clock divider (2, 4, 6 or 8)
 */
+
 #include "adc.hpp"
 #include <ch.h>
 #include <chprintf.h>
 #include <cstring>
 
 
-/*
-* Short description:
-* Requirements:
-* halconf.h -  Enable HAL
-* mcuconf.h -  Choose required ADC unit STM32_ADC_USE_ADC
-*              set STM32_ADC_ADCPRE for ADC clock divider (2, 4, 6 or 8)
+/**
+* Buffer must be static with external binding (static public) because method 
+* adcCallback must have access to it.
 */
-
-// static variable:
 adcsample_t Adc::Buffer[Adc::ADC1_CHANNELS_QUANTITY * Adc::ADC1_BUFFER_DEPTH];
-adcsample_t Adc::Kek[Adc::ADC1_CHANNELS_QUANTITY * Adc::ADC1_BUFFER_DEPTH];
 
 
-static void adcCallback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
+/**
+ * @brief Callback function
+ * @param[in] adcp - adc driver
+ * @param[in] buffer - buffer with adc data
+ * @param[in] n - buffer size
+ */
+static void adcCallback(ADCDriver* adcp, adcsample_t* buffer, size_t n)
 {
-  adcp = adcp; n = n;
+    adcp = adcp; n = n;
 
-  // Full buffer
-  if ( buffer != Adc::Buffer )
-  {
-    /* Pointer not equal to begin of buffer - second half of buffer is filled */
-  }
-  else
-  {
-      memcpy(Adc::Kek, Adc::Buffer, Adc::ADC1_CHANNELS_QUANTITY * Adc::ADC1_CHANNELS_QUANTITY * sizeof(adcsample_t));
-      Adc::Buffer[0]++;
-      /* Pointer is equal to begin of the buffer - first half is filled */
-  }
+    // Full buffer
+    if ( buffer != Adc::Buffer )
+    {
+        // Pointer not equal to begin of buffer - second half of buffer is filled
+    }
+    else
+    {
+        // Pointer is equal to begin of the buffer - first half is filled
+    }
 }
 
 
@@ -114,22 +118,12 @@ static const ADCConversionGroup adc1conf = {
 };
 
 
+
 void Adc::Start()
 {
     adcInit();
-    /* Enable ADC1, no config */
     adcStart(&ADCD1, NULL);
-    /* Set pins for ADC channels 10 and 3 as analog input */
     palSetLineMode( LINE_ADC123_IN10, PAL_MODE_INPUT_ANALOG );  // PC0
     palSetLineMode( LINE_ADC123_IN3, PAL_MODE_INPUT_ANALOG );   // PA3
-
-    /*
-    * Start conversion, args:
-    *   pointer to driver, pointer to conversion group config, pointer to buffer, depth of buffer
-    * During conversions samples are in buffer
-    * Proto:
-    * void adcStartConversion (ADCDriver *adcp, const ADCConversionGroup *grpp, adcsample_t *samples, size_t depth)
-    * In circular mode it start converting asynchronously
-    */
     adcStartConversion(&ADCD1, &adc1conf, &Buffer[0], ADC1_BUFFER_DEPTH);
 }

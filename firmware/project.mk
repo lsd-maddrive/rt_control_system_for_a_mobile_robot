@@ -10,8 +10,8 @@ PROJECT_CPPSRC 	= sources/devices/leds.cpp \
 				  sources/debug.cpp \
 				  ros_lib/duration.cpp \
  				  ros_lib/time.cpp \
- 				  ros.cpp \
-				  main.cpp
+ 				  sources/ros.cpp \
+				  sources/main.cpp
 				  
 
 

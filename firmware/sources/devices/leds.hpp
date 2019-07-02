@@ -9,7 +9,11 @@
 
 
 /**
-* @brief Board leds
+* @brief Leds board
+* @note It allows enable or disable leds using GPIO
+* - PB_0  - led1
+* - PB_7  - led2
+* - PB_14 - led3
 */
 class Leds
 {

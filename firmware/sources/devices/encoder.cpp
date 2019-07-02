@@ -8,20 +8,20 @@
 #include <ch.h>
 #include <hal.h>
 
-/*
-*/
 
-#define LEFT_ENC_A_CH   10
-#define LEFT_ENC_B_CH   12
-#define RIGHT_ENC_A_CH  14
-#define RIGHT_ENC_B_CH  15
+enum
+{
+    LEFT_ENC_A_CH = 10,
+    LEFT_ENC_B_CH = 12,
+    RIGHT_ENC_A_CH = 14,
+    RIGHT_ENC_B_CH = 15,
+};
 
-
-static void left_wheel_a_cb(EXTDriver *extp, expchannel_t channel);
-static void right_wheel_a_cb(EXTDriver *extp, expchannel_t channel);
-static void left_wheel_b_cb(EXTDriver *extp, expchannel_t channel);
-static void right_wheel_b_cb(EXTDriver *extp, expchannel_t channel);
-static void speed_tmr_cb ( GPTDriver *speedTmr );
+static void left_wheel_a_cb(EXTDriver* extp, expchannel_t channel);
+static void right_wheel_a_cb(EXTDriver* extp, expchannel_t channel);
+static void left_wheel_b_cb(EXTDriver* extp, expchannel_t channel);
+static void right_wheel_b_cb(EXTDriver* extp, expchannel_t channel);
+static void speed_tmr_cb ( GPTDriver* speedTmr );
 
 
 static int32_t LeftEncoderTicks = 0;
@@ -33,9 +33,6 @@ static float RightEncoderSpeed = 0;
 static float TimerCallbacksPerSecond;
 
 
-/**
-* @brief Init encoders
-**/
 void Encoder::Init()
 {
     const EXTConfig extcfg =
@@ -79,9 +76,6 @@ void Encoder::Init()
 }
 
 
-/**
-* @brief Reset value of ticks and speeds
-**/
 void Encoder::Reset()
 {
     RightEncoderTicks = 0;
@@ -92,69 +86,47 @@ void Encoder::Reset()
 }
 
 
-/**
-* @brief Get number of left encoder ticks
-**/
 int32_t Encoder::GetLeftValue()
 {
     return LeftEncoderTicks;
 }
 
 
-/**
-* @brief Get number of right encoder ticks
-**/
 int32_t Encoder::GetRightValue()
 {
     return RightEncoderTicks;
 }
 
 
-/**
-* @brief Set number of left encoder ticks
-**/
 void Encoder::SetLeftValue(int32_t numberOfTicks)
 {
     LeftEncoderTicks = numberOfTicks;
 }
 
 
-/**
-* @brief Set number of right encoder ticks
-**/
 void Encoder::SetRightValue(int32_t numberOfTicks)
 {
     RightEncoderTicks = numberOfTicks;
 }
 
 
-/**
-* @brief Get number of left encoder speed
-**/
 int32_t Encoder::GetLeftSpeed()
 {
     return LeftEncoderSpeed;
 }
 
 
-/**
-* @brief Get number of right encoder speed
-**/
 int32_t Encoder::GetRightSpeed()
 {
     return RightEncoderSpeed;
 }
 
 
-static void speed_tmr_cb ( GPTDriver* speedTimer )
+/**
+* @brief Calculate and update value of encoders speed static variable
+**/
+static void speed_tmr_cb(GPTDriver* speedTimer)
 {
-    #define ENCODER_SIMULATION
-    #ifdef ENCODER_SIMULATION
-    RightEncoderTicks += Motors::GetRightPower() >> 2;
-    LeftEncoderTicks += Motors::GetLeftPower() >> 2;
-    #endif
-
-
     speedTimer = speedTimer;
 
     float right_delta = RightEncoderTicks - RightEncoderTicksCash;
@@ -167,20 +139,23 @@ static void speed_tmr_cb ( GPTDriver* speedTimer )
 }
 
 
-static void left_wheel_a_cb(EXTDriver *extp, expchannel_t channel)
+/**
+* @brief Increase or decrease value of encoder counter when interrupt occur
+**/
+static void left_wheel_a_cb(EXTDriver* extp, expchannel_t channel)
 {
     extp = extp; channel = channel;
 
-    if ( palReadPad( GPIOE, LEFT_ENC_A_CH ) )
+    if (palReadPad(GPIOE, LEFT_ENC_A_CH))
     {
-        if ( palReadPad( GPIOE, LEFT_ENC_B_CH ) )
+        if (palReadPad( GPIOE, LEFT_ENC_B_CH))
             LeftEncoderTicks++;
         else
             LeftEncoderTicks--;
     }
     else
     {
-        if ( palReadPad( GPIOE, LEFT_ENC_B_CH ) )
+        if (palReadPad(GPIOE, LEFT_ENC_B_CH))
             LeftEncoderTicks--;
         else
             LeftEncoderTicks++;
@@ -188,20 +163,23 @@ static void left_wheel_a_cb(EXTDriver *extp, expchannel_t channel)
 }
 
 
-static void right_wheel_a_cb(EXTDriver *extp, expchannel_t channel)
+/**
+* @brief Increase or decrease value of encoder counter when interrupt occur
+**/
+static void right_wheel_a_cb(EXTDriver* extp, expchannel_t channel)
 {
     extp = extp; channel = channel;
 
-    if ( palReadPad( GPIOE, RIGHT_ENC_A_CH ) )
+    if (palReadPad(GPIOE, RIGHT_ENC_A_CH))
     {
-        if ( palReadPad( GPIOE, RIGHT_ENC_B_CH ) )
+        if (palReadPad(GPIOE, RIGHT_ENC_B_CH))
             RightEncoderTicks++;
         else
             RightEncoderTicks--;
     }
     else
     {
-        if ( palReadPad( GPIOE, RIGHT_ENC_B_CH ) )
+        if (palReadPad(GPIOE, RIGHT_ENC_B_CH))
             RightEncoderTicks--;
         else
             RightEncoderTicks++;
@@ -209,20 +187,23 @@ static void right_wheel_a_cb(EXTDriver *extp, expchannel_t channel)
 }
 
 
-static void left_wheel_b_cb(EXTDriver *extp, expchannel_t channel)
+/**
+* @brief Increase or decrease value of encoder counter when interrupt occur
+**/
+static void left_wheel_b_cb(EXTDriver* extp, expchannel_t channel)
 {
     extp = extp; channel = channel;
 
-    if ( palReadPad( GPIOE, LEFT_ENC_B_CH ) )
+    if (palReadPad( GPIOE, LEFT_ENC_B_CH))
     {
-        if ( palReadPad( GPIOE, LEFT_ENC_A_CH ) )
+        if (palReadPad(GPIOE, LEFT_ENC_A_CH))
             LeftEncoderTicks--;
         else
             LeftEncoderTicks++;
     }
     else
     {
-        if ( palReadPad( GPIOE, LEFT_ENC_A_CH ) )
+        if (palReadPad(GPIOE, LEFT_ENC_A_CH))
             LeftEncoderTicks++;
         else
             LeftEncoderTicks--;
@@ -230,20 +211,23 @@ static void left_wheel_b_cb(EXTDriver *extp, expchannel_t channel)
 }
 
 
-static void right_wheel_b_cb(EXTDriver *extp, expchannel_t channel)
+/**
+* @brief Increase or decrease value of encoder counter when interrupt occur
+**/
+static void right_wheel_b_cb(EXTDriver* extp, expchannel_t channel)
 {
     extp = extp; channel = channel;
 
-    if ( palReadPad( GPIOE, RIGHT_ENC_B_CH ) )
+    if (palReadPad(GPIOE, RIGHT_ENC_B_CH))
     {
-        if ( palReadPad( GPIOE, RIGHT_ENC_A_CH ) )
+        if (palReadPad(GPIOE, RIGHT_ENC_A_CH))
             RightEncoderTicks--;
         else
             RightEncoderTicks++;
     }
     else
     {
-        if ( palReadPad( GPIOE, RIGHT_ENC_A_CH ) )
+        if (palReadPad(GPIOE, RIGHT_ENC_A_CH))
             RightEncoderTicks++;
         else
             RightEncoderTicks--;

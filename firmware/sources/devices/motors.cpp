@@ -1,6 +1,9 @@
 /**
 * @file motors.cpp
 * @brief Motors implementation
+* @note Requirements:
+* - halconf.h - enable HAL_USE_PWM
+* - mcuconf.h - enable STM32_PWM_USE_TIM*
 */
 #include "motors.hpp"
 #include <ch.h>
@@ -8,19 +11,12 @@
 #include <math.h>
 
 
-/*
-* Short description:
-* Requirements:
-* halconf.h - enable HAL_USE_PWM
-* mcuconf.h - enable STM32_PWM_USE_TIM*
-*/
+PWMDriver* Motors::PwmDriverLeft    = &PWMD4;
+PWMDriver* Motors::PwmDriverRight   = &PWMD2;
 
-
-/**
-* @brief Pointers to PWM drivers
-**/
-PWMDriver* PwmDriverLeft    = &PWMD4;
-PWMDriver* PwmDriverRight   = &PWMD2;
+int32_t Motors::PowerToPwm;
+int8_t Motors::MotorLeftDutyCycle = 0;
+int8_t Motors::MotorRightDutyCycle = 0;
 
 
 /**
@@ -39,7 +35,7 @@ PWMDriver* PwmDriverRight   = &PWMD2;
 *      .callback - callback invoked on channel compare event
 *    - Timer direct registers.
 **/
-PWMConfig PwmConf =
+static PWMConfig PwmConf =
 {
     .frequency      = 2000000,
     .period         = 10000,
@@ -55,17 +51,6 @@ PWMConfig PwmConf =
 };
 
 
-/**
-* @brief Coefficient between power and pwm
-**/
-static int32_t PowerToPwm;
-static int8_t MotorLeftDutyCycle = 0;
-static int8_t MotorRightDutyCycle = 0;
-
-
-/**
-* @brief Indexes
-**/
 enum
 {
     PWM_MOTOR_LEFT_POS_IDX = 0,
@@ -77,7 +62,7 @@ enum
 
 /**
 * @brief Init Pwm driver
-* @note It include:
+* @details It include:
 *   1. Setup PWM pins.
 *   2. Calculate coefficient power to pwm
 *   3. Start PWM drivers.
@@ -99,7 +84,7 @@ void Motors::Init()
 
 /**
 * @brief Set motor left power from -100 to +100
-* @param power - duty cycle, where negative mean inverse direction.
+* @param power[in] - duty cycle, where negative mean inverse direction.
 **/
 void Motors::SetLeftPower(int8_t power)
 {
@@ -119,7 +104,7 @@ void Motors::SetLeftPower(int8_t power)
 
 /**
 * @brief Set motor right power from -100 to +100
-* @param power - duty cycle, where negative mean inverse direction.
+* @param power[in] - duty cycle, where negative mean inverse direction.
 **/
 void Motors::SetRightPower(int8_t power)
 {

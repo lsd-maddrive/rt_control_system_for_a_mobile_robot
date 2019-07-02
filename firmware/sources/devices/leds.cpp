@@ -1,15 +1,10 @@
 /**
 * @file leds.cpp
-* @brief Board leds implementation
+* @brief Leds board implementation
 */
-#include "leds.hpp"
 
-/*
-* Short description:
-* PB_0 - led1
-* PB_7 - led2
-* PB_14 - led3
-*/
+
+#include "leds.hpp"
 
 
 void Leds::Init()

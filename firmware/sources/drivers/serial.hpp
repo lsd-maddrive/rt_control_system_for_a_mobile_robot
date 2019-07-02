@@ -8,9 +8,6 @@
 #include <hal.h>
 
 
-/**
-* @brief Serial driver
-*/
 class Serial
 {
 public:

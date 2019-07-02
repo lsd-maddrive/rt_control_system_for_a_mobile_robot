@@ -27,7 +27,7 @@ static bool isSerialSeventhBusy = false;
 */
 Serial* Serial::GetInstance(SerialNumber_t serialNumber)
 {
-    const SerialConfig sdcfg =
+    const SerialConfig sdcfg __attribute__((unused)) =
     {
          .speed = 115200,
          .cr1 = 0,

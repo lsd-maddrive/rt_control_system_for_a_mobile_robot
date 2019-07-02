@@ -6,6 +6,7 @@
 #include "motors.hpp"
 #include "encoder.hpp"
 #include "odometry.hpp"
+#include "debug.hpp"
 
 
 int main()
@@ -17,6 +18,7 @@ int main()
     RosDriver::Init();
     Encoder::Init();
     Odometry::Init();
+    Debug::StartMovementSimulation();
 
     while(1)
     {

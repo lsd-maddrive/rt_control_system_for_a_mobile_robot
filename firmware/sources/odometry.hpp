@@ -1,3 +1,7 @@
+/**
+* @file odometry.hpp
+* @brief Odometry class
+*/
 #ifndef ODOMETRY_HPP
 #define ODOMETRY_HPP
 
@@ -8,6 +12,7 @@ typedef struct
 {
     float x, y, dir;
 } OdometryPosition_t;
+
 
 class Odometry
 {

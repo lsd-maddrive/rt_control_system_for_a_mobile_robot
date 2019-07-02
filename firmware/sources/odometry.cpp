@@ -7,29 +7,33 @@
 #include "encoder.hpp"
 #include <math.h>
 
-int32_t enc_right_cache = 0;
-int32_t enc_left_cache = 0;
 
-OdometryPosition_t pose;
+static int32_t enc_right_cache = 0;
+static int32_t enc_left_cache = 0;
 
-const float ticks_per_rotation = 300;
-const float meters_per_rotation = 0.155;
-const float meters_per_tick = 0.0005167;
-const float wheeltrack = 0.23;
+static OdometryPosition_t pose;
+
+/// Encoder Constant
+static const float ticks_per_rotation __attribute__((unused)) = 300;
+/// Calibration constants
+static const float meters_per_rotation __attribute__((unused)) = 0.155;
+static const float meters_per_tick = 0.0005167;
+static const float wheeltrack = 0.23;
+
 
 void Odometry::Init()
 {
 	Reset();
 }
 
+
 void Odometry::Reset()
 {
 	pose.x = 0;
 	pose.y = 0;
 	pose.dir = 0;
-
-	// encoder reset
 }
+
 
 OdometryPosition_t* Odometry::GetPosition()
 {

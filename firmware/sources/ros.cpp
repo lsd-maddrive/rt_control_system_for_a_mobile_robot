@@ -9,7 +9,6 @@
 #include "motors.hpp"
 #include "odometry.hpp"
 
-
 #include "ros.h"
 #include "std_msgs/String.h"
 #include "std_msgs/Int32.h"
@@ -24,10 +23,43 @@
 
 
 // Bind ROS and Serial Driver
+// It must be global variables!
 SerialDriver* ros_sd     = &SD5;
-BaseChannel* ros_sd_ptr = (BaseChannel *)ros_sd;
+BaseChannel* ros_sd_ptr = (BaseChannel*)ros_sd;
+
 
 // Callback's
+void ledPowerCallback( const std_msgs::UInt8& msg );
+void cmdCallback( const geometry_msgs::Twist& msg );
+
+// Ros things:
+// 1. Node is a process that performs computation.
+static ros::NodeHandle RosNode;
+// 2. Nodes communicate with each other by publishing messages to topics.
+static std_msgs::String TestStringMsg;
+static std_msgs::Int32 EncoderLeftMsg;
+static std_msgs::Int32 EncoderRightMsg;
+static std_msgs::Float32 EncoderLeftSpeedMsg;
+static std_msgs::Float32 EncoderRightSpeedMsg;
+static std_msgs::Int32 MotorLeftMsg;
+static std_msgs::Int32 MotorRightMsg;
+static geometry_msgs::Point32 PositionMsg;
+static geometry_msgs::Twist CmdRepeaterMsg;
+// 3. Topics are named buses over which nodes exchange messages.
+static ros::Publisher TestTopic("testTopic", &TestStringMsg);
+static ros::Publisher EncoderLeftTopic("encoderLeftTopic", &EncoderLeftMsg);
+static ros::Publisher EncoderRightTopic("encoderRightTopic", &EncoderRightMsg);
+static ros::Publisher EncoderLeftSpeedTopic("encoderLeftSpeedTopic", &EncoderLeftSpeedMsg);
+static ros::Publisher EncoderRightSpeedTopic("encoderRightSpeedTopic", &EncoderRightSpeedMsg);
+static ros::Publisher MotorLeftTopic("motorLeftTopic", &MotorLeftMsg);
+static ros::Publisher MotorRightTopic("motorRightTopic", &MotorRightMsg);
+static ros::Publisher PositionTopic("turtlesim/Pose", &PositionMsg);
+static ros::Publisher CmdRepeaterTopic("cmdRepeaterTopic", &CmdRepeaterMsg);
+// 4. Subscribers topics:
+ros::Subscriber<std_msgs::UInt8> LedPowerTopic("LedPowerTopic", &ledPowerCallback);
+ros::Subscriber<geometry_msgs::Twist> CmdTopic("CmdTopic", &cmdCallback);
+
+
 void ledPowerCallback( const std_msgs::UInt8& msg )
 {
     if(msg.data & 1)
@@ -46,11 +78,12 @@ void ledPowerCallback( const std_msgs::UInt8& msg )
         Leds::OffThird();
 }
 
-void cmdCallback( const geometry_msgs::Twist& msg )
+
+void cmdCallback( const geometry_msgs::Twist &msg )
 {
     float linear = msg.linear.x;
     float rotation = msg.angular.z;
-
+    
     if (linear)
     {
         Motors::SetLeftPower(20 * linear);
@@ -63,50 +96,39 @@ void cmdCallback( const geometry_msgs::Twist& msg )
     }
     else
     {
-        Motors::SetLeftPower(0);
-        Motors::SetRightPower(0);
+        Motors::SetLeftPower(50);
+        Motors::SetRightPower(50);
+    }
+    
+}
+
+
+// ROS thread - used to subscribe messages
+static THD_WORKING_AREA(RosSubscriberThreadWorkingArea, 128);
+static THD_FUNCTION(RosSubscriberThread, arg)
+{
+    (void)arg;
+    chRegSetThreadName("RosSubscriberThread");
+
+    while (true)
+    {
+        RosNode.spinOnce();
+        chThdSleepMilliseconds( 20 );
     }
 }
 
 
-
-// Ros things:
-// 1. Node is a process that performs computation.
-static ros::NodeHandle RosNode;
-// 2. Nodes communicate with each other by publishing messages to topics.
-static std_msgs::String TestStringMsg;
-static std_msgs::Int32 EncoderLeftMsg;
-static std_msgs::Int32 EncoderRightMsg;
-static std_msgs::Float32 EncoderLeftSpeedMsg;
-static std_msgs::Float32 EncoderRightSpeedMsg;
-static std_msgs::Int32 MotorLeftMsg;
-static std_msgs::Int32 MotorRightMsg;
-static geometry_msgs::Point32 PositionMsg;
-static geometry_msgs::Twist CmdMsg;
-// 3. Topics are named buses over which nodes exchange messages.
-static ros::Publisher TestTopic("testTopic", &TestStringMsg);
-static ros::Publisher EncoderLeftTopic("encoderLeftTopic", &EncoderLeftMsg);
-static ros::Publisher EncoderRightTopic("encoderRightTopic", &EncoderRightMsg);
-static ros::Publisher EncoderLeftSpeedTopic("encoderLeftSpeedTopic", &EncoderLeftSpeedMsg);
-static ros::Publisher EncoderRightSpeedTopic("encoderRightSpeedTopic", &EncoderRightSpeedMsg);
-static ros::Publisher MotorLeftTopic("motorLeftTopic", &MotorLeftMsg);
-static ros::Publisher MotorRightTopic("motorRightTopic", &MotorRightMsg);
-static ros::Publisher PositionTopic("turtlesim/Pose", &PositionMsg);
-
-ros::Subscriber<std_msgs::UInt8> LedPowerTopic("LedPowerTopic", &ledPowerCallback);
-ros::Subscriber<geometry_msgs::Twist> CmdTopic("CmdTopic", &cmdCallback);
-
-
-// ROS thread - use to publish messages
+// ROS thread - used to publish messages
 static THD_WORKING_AREA(RosPublisherThreadWorkingArea, 128);
 static THD_FUNCTION(RosPublisherThread, arg)
 {
     (void)arg;
     chRegSetThreadName("RosPublisherThread");
 
+    TestStringMsg.data = "Hello, world";
+    
     while (true)
     {
-        TestStringMsg.data = "hello";
         TestTopic.publish( &TestStringMsg );
 
         EncoderLeftMsg.data = Encoder::GetLeftValue();
@@ -132,7 +154,8 @@ static THD_FUNCTION(RosPublisherThread, arg)
         PositionMsg.y = position->y;
         PositionTopic.publish( &PositionMsg );
 
-        RosNode.spinOnce();
+        CmdRepeaterTopic.publish(&CmdRepeaterMsg);
+        
         chThdSleepMilliseconds(1000);
     }
 }
@@ -140,21 +163,6 @@ static THD_FUNCTION(RosPublisherThread, arg)
 
 void RosDriver::Init()
 {
-    RosNode.initNode();
-    RosNode.setSpinTimeout( 20 );
-    RosNode.advertise(TestTopic);
-    RosNode.advertise(EncoderLeftTopic);
-    RosNode.advertise(EncoderRightTopic);
-    RosNode.advertise(EncoderLeftSpeedTopic);
-    RosNode.advertise(EncoderRightSpeedTopic);
-    RosNode.advertise(MotorLeftTopic);
-    RosNode.advertise(MotorRightTopic);
-    RosNode.advertise(PositionTopic);
-
-    RosNode.subscribe(LedPowerTopic);
-    RosNode.subscribe(CmdTopic);
-
-
     const SerialConfig sdcfg =
     {
          .speed = 115200,
@@ -165,6 +173,23 @@ void RosDriver::Init()
     sdStart( &SD5, &sdcfg );
     palSetPadMode( GPIOC, 12, PAL_MODE_ALTERNATE(8) );  // TX
     palSetPadMode( GPIOD, 2, PAL_MODE_ALTERNATE(8) );   // RX
+    
+    RosNode.initNode();
+    RosNode.setSpinTimeout( 20 );
+    
+    RosNode.advertise(TestTopic);
+    RosNode.advertise(EncoderLeftTopic);
+    RosNode.advertise(EncoderRightTopic);
+    RosNode.advertise(EncoderLeftSpeedTopic);
+    RosNode.advertise(EncoderRightSpeedTopic);
+    RosNode.advertise(MotorLeftTopic);
+    RosNode.advertise(MotorRightTopic);
+    RosNode.advertise(PositionTopic);
+    RosNode.advertise(CmdRepeaterTopic);
 
+    RosNode.subscribe(CmdTopic);
+    RosNode.subscribe(LedPowerTopic);
+
+    chThdCreateStatic(RosSubscriberThreadWorkingArea, sizeof(RosSubscriberThreadWorkingArea), NORMALPRIO, RosSubscriberThread, NULL);
     chThdCreateStatic(RosPublisherThreadWorkingArea, sizeof(RosPublisherThreadWorkingArea), NORMALPRIO, RosPublisherThread, NULL);
 }
