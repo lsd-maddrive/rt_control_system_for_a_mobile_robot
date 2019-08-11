@@ -10,6 +10,7 @@
 #include "text.hpp"
 #include "adc.hpp"
 
+static thread_t* MovemetSimulationThread = nullptr;
 
 /**
 * @brief Set left encoder value 
@@ -123,6 +124,29 @@ void Debug::StartShowingSystemInfoDirectly()
 */
 void Debug::StartMovementSimulation()
 {
-    chThdCreateStatic(movementSimulationThreadWorkingArea, sizeof(movementSimulationThreadWorkingArea), NORMALPRIO, MovementSimulationThread, NULL);
+    if(MovemetSimulationThread == nullptr)
+    {
+        MovemetSimulationThread = chThdCreateStatic(movementSimulationThreadWorkingArea, 
+                                                    sizeof(movementSimulationThreadWorkingArea), 
+                                                    NORMALPRIO, 
+                                                    MovementSimulationThread, 
+                                                    NULL);
+    }
+    else
+    {
+        chThdStart(MovemetSimulationThread);
+    }
+    
 }
 
+
+/**
+* @brief Stop thread that change values of encoders counters according motors power
+*/
+void Debug::StopMovementSimulation()
+{
+    if(MovemetSimulationThread != nullptr)
+    {
+        chThdWait(MovemetSimulationThread);
+    }
+}

@@ -20,6 +20,7 @@ public:
     static void StartShowingSystemInfoDirectly();
     /// @brief Change values of encoders counters according motor power
     static void StartMovementSimulation();
+    static void StopMovementSimulation();
 private:
     friend void MovementSimulationThread(void* arg);
     static void SetLeftEncoderValue(int32_t encoderValue);

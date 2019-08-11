@@ -8,6 +8,7 @@
 #include "leds.hpp"
 #include "motors.hpp"
 #include "odometry.hpp"
+#include "debug.hpp"
 
 #include "ros.h"
 #include "std_msgs/String.h"
@@ -29,7 +30,7 @@ BaseChannel* ros_sd_ptr = (BaseChannel*)ros_sd;
 
 
 // Callback's
-void ledPowerCallback( const std_msgs::UInt8& msg );
+void modeSelectionCallback( const std_msgs::UInt8& msg );
 void cmdCallback( const geometry_msgs::Twist& msg );
 
 // Ros things:
@@ -53,14 +54,14 @@ static ros::Publisher EncoderLeftSpeedTopic("encoderLeftSpeedTopic", &EncoderLef
 static ros::Publisher EncoderRightSpeedTopic("encoderRightSpeedTopic", &EncoderRightSpeedMsg);
 static ros::Publisher MotorLeftTopic("motorLeftTopic", &MotorLeftMsg);
 static ros::Publisher MotorRightTopic("motorRightTopic", &MotorRightMsg);
-static ros::Publisher PositionTopic("turtlesim/Pose", &PositionMsg);
+static ros::Publisher PositionTopic("positionTopic", &PositionMsg);
 static ros::Publisher CmdRepeaterTopic("cmdRepeaterTopic", &CmdRepeaterMsg);
 // 4. Subscribers topics:
-ros::Subscriber<std_msgs::UInt8> LedPowerTopic("LedPowerTopic", &ledPowerCallback);
-ros::Subscriber<geometry_msgs::Twist> CmdTopic("CmdTopic", &cmdCallback);
+ros::Subscriber<std_msgs::UInt8> ModeSelectionTopic("modeSelectionTopic", &modeSelectionCallback);
+ros::Subscriber<geometry_msgs::Twist> CmdTopic("cmdTopic", &cmdCallback);
 
 
-void ledPowerCallback( const std_msgs::UInt8& msg )
+void modeSelectionCallback( const std_msgs::UInt8& msg )
 {
     if(msg.data & 1)
         Leds::OnFirst();
@@ -76,28 +77,34 @@ void ledPowerCallback( const std_msgs::UInt8& msg )
         Leds::OnThird();
     else
         Leds::OffThird();
+    
+    if(msg.data & 8)
+        Debug::StartMovementSimulation();
+    else
+        Debug::StopMovementSimulation();
+        
 }
 
 
-void cmdCallback( const geometry_msgs::Twist &msg )
+void cmdCallback(const geometry_msgs::Twist& msg)
 {
     float linear = msg.linear.x;
     float rotation = msg.angular.z;
     
-    if (linear)
+    if(linear)
     {
         Motors::SetLeftPower(20 * linear);
         Motors::SetRightPower(20 * linear);
     }
-    else if (rotation)
+    else if(rotation)
     {
         Motors::SetLeftPower(-20 * rotation);
         Motors::SetRightPower(20 * rotation);
     }
     else
     {
-        Motors::SetLeftPower(50);
-        Motors::SetRightPower(50);
+        Motors::SetLeftPower(0);
+        Motors::SetRightPower(0);
     }
     
 }
@@ -129,8 +136,7 @@ static THD_FUNCTION(RosPublisherThread, arg)
     
     while (true)
     {
-        TestTopic.publish( &TestStringMsg );
-
+        // Publish important system state info:
         EncoderLeftMsg.data = Encoder::GetLeftValue();
         EncoderLeftTopic.publish( &EncoderLeftMsg );
 
@@ -152,8 +158,11 @@ static THD_FUNCTION(RosPublisherThread, arg)
         OdometryPosition_t* position = Odometry::GetPosition();
         PositionMsg.x = position->x;
         PositionMsg.y = position->y;
-        PositionTopic.publish( &PositionMsg );
+        PositionMsg.z = position->dir;
+        PositionTopic.publish(&PositionMsg);
 
+        // Publish info for debugging:
+        TestTopic.publish(&TestStringMsg);
         CmdRepeaterTopic.publish(&CmdRepeaterMsg);
         
         chThdSleepMilliseconds(1000);
@@ -188,7 +197,7 @@ void RosDriver::Init()
     RosNode.advertise(CmdRepeaterTopic);
 
     RosNode.subscribe(CmdTopic);
-    RosNode.subscribe(LedPowerTopic);
+    RosNode.subscribe(ModeSelectionTopic);
 
     chThdCreateStatic(RosSubscriberThreadWorkingArea, sizeof(RosSubscriberThreadWorkingArea), NORMALPRIO, RosSubscriberThread, NULL);
     chThdCreateStatic(RosPublisherThreadWorkingArea, sizeof(RosPublisherThreadWorkingArea), NORMALPRIO, RosPublisherThread, NULL);
