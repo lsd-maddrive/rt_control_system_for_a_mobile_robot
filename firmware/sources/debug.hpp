@@ -16,10 +16,9 @@
 class Debug
 {
 public:
-    /// @brief Show system time through serial 6 directly every 3 seconds
-    static void StartShowingSystemInfoDirectly();
-    /// @brief Change values of encoders counters according motor power
+    /// @brief Start thread that change values of encoders counters according motors power
     static void StartMovementSimulation();
+    /// @brief Stop thread that change values of encoders counters according motors power
     static void StopMovementSimulation();
 private:
     friend void MovementSimulationThread(void* arg);

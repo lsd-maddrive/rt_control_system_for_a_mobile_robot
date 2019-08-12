@@ -9,6 +9,7 @@
 #include "motors.hpp"
 #include "odometry.hpp"
 #include "debug.hpp"
+#include "usb.hpp"
 
 #include "ros.h"
 #include "std_msgs/String.h"
@@ -25,8 +26,21 @@
 
 // Bind ROS and Serial Driver
 // It must be global variables!
-SerialDriver* ros_sd     = &SD5;
-BaseChannel* ros_sd_ptr = (BaseChannel*)ros_sd;
+// Must be named <ros_sd_ptr> for ChibiOSHardware
+#if HAL_USE_USB == TRUE
+    BaseChannel     *ros_sd_ptr = (BaseChannel *)&SDU1;
+#elif HAL_USE_SERIAL_USB == TRUE
+    static const SerialConfig sdcfg =
+    {
+         .speed = 115200,
+         .cr1 = 0,
+         .cr2 = USART_CR2_LINEN,
+         .cr3 = 0
+    };
+    SerialDriver* ros_sd     = &SD5;
+    BaseChannel* ros_sd_ptr = (BaseChannel*)ros_sd;
+    SerialDriver    *ros_sd     = &SD5;
+#endif
 
 
 // Callback's
@@ -172,16 +186,23 @@ static THD_FUNCTION(RosPublisherThread, arg)
 
 void RosDriver::Init()
 {
-    const SerialConfig sdcfg =
-    {
-         .speed = 115200,
-         .cr1 = 0,
-         .cr2 = USART_CR2_LINEN,
-         .cr3 = 0
-    };
-    sdStart( &SD5, &sdcfg );
-    palSetPadMode( GPIOC, 12, PAL_MODE_ALTERNATE(8) );  // TX
-    palSetPadMode( GPIOD, 2, PAL_MODE_ALTERNATE(8) );   // RX
+    #if HAL_USE_USB == TRUE
+        sduObjectInit( &SDU1 );
+        sduStart( &SDU1, &serusbcfg );
+        /*
+        * Activates the USB driver and then the USB bus pull-up on D+.
+        * Note, a delay is inserted in order to not have to disconnect the cable
+        * after a reset.
+        */
+        usbDisconnectBus( serusbcfg.usbp );
+        chThdSleepMilliseconds( 1500 );
+        usbStart( serusbcfg.usbp, &usbcfg );
+        usbConnectBus( serusbcfg.usbp );
+    #elif HAL_USE_SERIAL_USB == TRUE
+        sdStart( &SD5, &sdcfg );
+        palSetPadMode( GPIOC, 12, PAL_MODE_ALTERNATE(8) );  // TX
+        palSetPadMode( GPIOD, 2, PAL_MODE_ALTERNATE(8) );   // RX
+    #endif
     
     RosNode.initNode();
     RosNode.setSpinTimeout( 20 );

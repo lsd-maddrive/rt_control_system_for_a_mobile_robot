@@ -14,12 +14,13 @@ public:
     /**
     * @brief Init ros work
     * @details Ros work initialization consist of following actions:
-    * - start serial driver 5 and set gpio mode
+    * - start serial or usb driver
     * - init ros node
     * - advertise and subscribe topics
     * - start two threads (for subscribers and publishers)
     */
     static void Init();
 };
+
 
 #endif /* ROS_HPP */
