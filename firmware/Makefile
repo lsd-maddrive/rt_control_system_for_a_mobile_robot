@@ -94,7 +94,7 @@ PROJECT = ch
 # Imported source files and paths
 # CHIBIOS = ../../chibios176
 # CHIBIOS = $(CHIBIOS_ROOT)
-CHIBIOS = /home/nex-lin/eclipse-workspace/workspace/chibios176
+CHIBIOS = /home/nex-lin/eclipse-workspace/chibios176
 # Startup files.
 include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f7xx.mk
 # HAL-OSAL files (optional).
