@@ -134,7 +134,7 @@ static THD_FUNCTION(RosSubscriberThread, arg)
     while (true)
     {
         RosNode.spinOnce();
-        chThdSleepMilliseconds( 20 );
+        chThdSleepMilliseconds( 10 );
     }
 }
 
@@ -179,6 +179,20 @@ static THD_FUNCTION(RosPublisherThread, arg)
         TestTopic.publish(&TestStringMsg);
         CmdRepeaterTopic.publish(&CmdRepeaterMsg);
         
+        // Led
+        static bool isLedOn = false;
+        if(isLedOn)
+        {
+        	isLedOn = false;
+        	Leds::OffThird();
+        }
+        else
+        {
+        	isLedOn = true;
+        	Leds::OnThird();
+        }
+
+
         chThdSleepMilliseconds(1000);
     }
 }

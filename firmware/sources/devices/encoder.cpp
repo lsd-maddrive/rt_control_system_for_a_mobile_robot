@@ -33,6 +33,15 @@ static float RightEncoderSpeed = 0;
 static float TimerCallbacksPerSecond;
 
 
+static const GPTConfig speedTimerCfg =
+{
+	.frequency      =  100000, // 100 KHz
+	.callback       =  speed_tmr_cb,
+	.cr2            =  0,
+	.dier           =  0U
+};
+
+
 void Encoder::Init()
 {
     const EXTConfig extcfg =
@@ -56,14 +65,6 @@ void Encoder::Init()
             [14] = {EXT_CH_MODE_BOTH_EDGES | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIOE, right_wheel_a_cb},
             [15] = {EXT_CH_MODE_BOTH_EDGES | EXT_CH_MODE_AUTOSTART | EXT_MODE_GPIOE, right_wheel_b_cb},
         }
-    };
-
-    const GPTConfig speedTimerCfg =
-    {
-        .frequency      =  100000, // 100 KHz
-        .callback       =  speed_tmr_cb,
-        .cr2            =  0,
-        .dier           =  0U
     };
 
     extStart( &EXTD1, &extcfg );
