@@ -13,7 +13,7 @@ def handle_turtle_pose(msg):
     br.sendTransform((msg.x, msg.y, 0),
                      quaternion_from_euler(0, 0, msg.z),
                      rospy.Time.now(),
-                     turtlename,
+                     turtlename,    # temporary!
                      "laser_frame") # temporary!
 
 rospy.Subscriber('input_pose',
