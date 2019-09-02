@@ -1,0 +1,19 @@
+<launch>
+  <arg name="ydlidar_output"        default="screen" />
+  <arg name="serial_node_output"    default="screen" />
+  <arg name="tf_broadcaster_output" default="screen" />
+  <arg name="teleop_output"         default="screen" />
+
+  <include file="$(find software)/launch/ydlidar.launch">
+    <arg name="ydlidar_output" value="$(arg ydlidar_output)"/>
+  </include>
+  <node name="serial_node" pkg="rosserial_python" type="serial_node.py" output="$(arg serial_node_output)">
+    <param name="port" value="/dev/stm32" />
+    <param name="baud" value="115200" />
+  </node>
+  <node name="tf_broadcaster" pkg="software" type="robot_tf_broadcaster.py" output="$(arg tf_broadcaster_output)">
+    <remap from="input_pose" to="/positionTopic"/>
+    <param name="turtle_tf_name" type="string" value="robot"/>
+  </node>
+  <node name="teleop" pkg="software" type="teleop_twist_keyboard.py" output="$(arg teleop_output)"/>
+</launch>
