@@ -7,6 +7,7 @@
   <include file="$(find software)/launch/ydlidar.launch">
     <arg name="ydlidar_output" value="$(arg ydlidar_output)"/>
   </include>
+  <include file="$(find software)/launch/camera.launch"/>
   <node name="serial_node" pkg="rosserial_python" type="serial_node.py" output="$(arg serial_node_output)">
     <param name="port" value="/dev/stm32" />
     <param name="baud" value="115200" />
