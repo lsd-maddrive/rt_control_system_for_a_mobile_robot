@@ -1,5 +1,5 @@
 <launch>
 	<param name="robot_description" command="cat $(find software)/urdf/my_robot.urdf" />
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
-	<node name="state_publisher" pkg="software" type="state_publisher" output="screen" />
+	<node name="state_publisher" pkg="software" type="state_publisher" />
 </launch>

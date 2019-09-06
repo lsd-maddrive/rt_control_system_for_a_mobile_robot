@@ -2,10 +2,10 @@
 <!-- roscat turtlebot_navigation kinect_gmapping.launch.xml -->
 <launch>
   <arg name="scan_topic"  default="scan" />
-  <arg name="base_frame"  default="base_footprint"/>
+  <arg name="base_frame"  default="base_link"/>
   <arg name="odom_frame"  default="odom"/>
 
-  <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+  <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping">
     <param name="base_frame" value="$(arg base_frame)"/>
     <param name="odom_frame" value="$(arg odom_frame)"/>
     <param name="map_update_interval" value="5.0"/>
