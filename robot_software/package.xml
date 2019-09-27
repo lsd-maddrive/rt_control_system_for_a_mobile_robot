@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>software</name>
+  <name>robot_software</name>
   <version>0.0.0</version>
   <description>The software package</description>
 

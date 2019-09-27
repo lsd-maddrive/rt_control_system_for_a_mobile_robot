@@ -1,4 +1,0 @@
-<launch>
-  <include file="$(find software)/launch/start.launch"/>
-  <node name="activate_simulation_mode" pkg="software" type="activate_simulation_mode.py" output="screen"/>
-</launch>

@@ -1,0 +1,5 @@
+<launch>
+  <include file="$(find robot_software)/launch/navigation_stack/gmapping.launch"/>
+  <node name="rviz" pkg="rviz" type="rviz" output="screen"/>
+  <node name="teleop" pkg="robot_software" type="teleop_twist_keyboard.py" output="$(arg teleop_output)"/>
+</launch>
