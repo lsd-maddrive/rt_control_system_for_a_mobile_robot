@@ -1,9 +1,21 @@
 # Real-time system for mobile robot control
 
+### How to start:
+
+1. Clone this repository with submodules:
+`git clone --recursive https://github.com/PonomarevDA/rts_for_mobile_robot_control.git`
+2. Install all dependencies
+`startup.sh`
+
+### Requirements:
+
+- [ROS Melodic](http://wiki.ros.org/melodic)
+
 ### Consists of:
 
-* the Eclipse project based on ChibiOS for STM32 Nucleo144-F767ZI board
-* the ROS package for raspberry PI 2B and PC
+* robot_firmware - Eclipse project based on ChibiOS for STM32 Nucleo144-F767ZI board
+* robot_software - ROS package for raspberry PI 2B and PC
+* ydlidar_ros - ROS package for YDLIDAR
 
 ### Useful links
 
@@ -16,11 +28,7 @@
 
 ### Notes
 
-The project is based on the ChibiOS/RT demos for STM32 Nucleo144-F767ZI
-
+The firmware is based on the ChibiOS/RT demos for STM32 Nucleo144-F767ZI
 Some files used by the demo are not part of ChibiOS/RT but are copyright of
 ST Microelectronics and are licensed under a different license.
-Also note that not all the files present in the ST library are distributed
-with ChibiOS/RT, you can find the whole library on the ST web site:
 
-http://www.st.com
