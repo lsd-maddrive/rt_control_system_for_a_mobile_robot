@@ -15,6 +15,7 @@
 
 * robot_firmware - Eclipse project based on ChibiOS for STM32 Nucleo144-F767ZI board
 * robot_software - ROS package for raspberry PI 2B and PC
+* robot_description - ROS package with robot description
 * ydlidar_ros - ROS package for YDLIDAR
 
 ### Useful links

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+Start slam stack
+-->
+<launch>
+
+	<arg name="mapping_algorithm" default="gmapping" />
+
+	<include file="$(find robot_software)/launch/navigation_stack/$(arg mapping_algorithm).launch"/>
+
+</launch>

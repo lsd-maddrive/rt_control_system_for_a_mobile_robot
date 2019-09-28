@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!--
+Start real robot on RPI
+-->
+<launch>
+  <arg name="teleop_output"         default="screen" />
+
+  <include file="$(find robot_software)/launch/real_robot/robot_configuration.launch"/>
+  <include file="$(find robot_software)/launch/navigation_stack/slam_stack.launch"/>
+  <include file="$(find robot_software)/launch/navigation_stack/state_publisher.launch"/>
+  <node name="teleop" pkg="robot_software" type="teleop_twist_keyboard.py" output="$(arg teleop_output)"/>
+</launch>

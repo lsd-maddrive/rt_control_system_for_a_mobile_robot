@@ -1,5 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+Start simulation:
+1. Start Gazebo with empty world
+2. Spawn a robot into Gazebo
+-->
 <launch>
-  <include file="$(find robot_software)/launch/navigation_stack/gmapping.launch"/>
-  <node name="rviz" pkg="rviz" type="rviz" output="screen"/>
-  <node name="teleop" pkg="robot_software" type="teleop_twist_keyboard.py" output="$(arg teleop_output)"/>
+
+	<include file="$(find gazebo_ros)/launch/empty_world.launch">
+		<arg name="paused" value="false"/>
+		<arg name="use_sim_time" value="true"/>
+		<arg name="gui" value="true"/>
+		<arg name="recording" value="false"/>
+		<arg name="debug" value="false"/>
+	</include>
+
+	<include file="$(find robot_description)/launch/spawn.launch"/>
 </launch>

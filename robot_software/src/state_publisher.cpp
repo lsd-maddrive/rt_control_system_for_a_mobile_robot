@@ -1,3 +1,8 @@
+/**
+* @file state_publisher.cpp
+* @brief receive position robot from serial_node and do tf transfrom base_link relative to the map
+*/
+
 #include <string>
 #include <ros/ros.h>
 #include <sensor_msgs/JointState.h>
