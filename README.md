@@ -1,17 +1,33 @@
 # Real-time system for mobile robot control
 
-### How to start:
+### Description
+
+This project consist of firmware and software for real time system for tracked mobile robot control.
+- The firmware is based on the [ChibiOS/RT](http://chibios.org/dokuwiki/doku.php) demos for STM32 Nucleo144-F767ZI
+- The software is based on [ROS Melodic](http://wiki.ros.org/melodic) for Raspberry PI and desktop
+
+### Software installation
 
 1. Clone this repository with submodules:
 `git clone --recursive https://github.com/PonomarevDA/rts_for_mobile_robot_control.git`
 2. Install all dependencies
 `startup.sh`
 
-### Requirements:
+### How to start robot
 
-- [ROS Melodic](http://wiki.ros.org/melodic)
+1. Select RPI to run master, set ROS_MASTER_URI and ROS_IP on RPI and desktop 
+2. Run `start_real.launch` on RPI
+3. Run `rviz.launch` on desktop
 
-### Consists of:
+### How to start simulation
+
+1. Run `start_simulation.launch` on desktop
+
+### Troubleshooting
+
+If you have problem with urdf model visualization in rviz in ros melodic, read [this comment](https://github.com/ros-visualization/rviz/issues/1249#issuecomment-403351217).
+
+### Repository content
 
 * robot_firmware - Eclipse project based on ChibiOS for STM32 Nucleo144-F767ZI board
 * robot_software - ROS package for raspberry PI 2B and PC
@@ -27,9 +43,4 @@
 * [ydlidar ros package - new repository](https://github.com/YDLIDAR/ydlidar_ros/)
 * [ydlidar ros package - old repository](https://github.com/EAIBOT/ydlidar/)
 
-### Notes
-
-The firmware is based on the ChibiOS/RT demos for STM32 Nucleo144-F767ZI
-Some files used by the demo are not part of ChibiOS/RT but are copyright of
-ST Microelectronics and are licensed under a different license.
 
