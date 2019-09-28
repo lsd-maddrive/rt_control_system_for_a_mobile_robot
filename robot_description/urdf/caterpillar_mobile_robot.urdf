@@ -2,10 +2,9 @@
 
 <!-- The caterpillar mobile robot model-->
 
-<robot name="my_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot name="caterpillar_mobile_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
 	<link name="base_link">
-		<pose>0 0 0 0 0 0</pose>
 
 		<visual>
 			<origin xyz="0 0 0.1" />
@@ -13,21 +12,22 @@
 				<box size="0.25 0.2 0.05"/>
 			</geometry>
 			<material name="gray">
-				<color rgba=".2 .2 .2 1" />
+				<color rgba="0.2 0.2 0.2 1" />
 			</material>
 		</visual>
-
+		
     <inertial>
       <mass value="5"/>
       <origin xyz="0 0 0.1" rpy="0 0 0"/>
       <inertia ixx="0.0395416666667" ixy="0" ixz="0" iyy="0.106208333333" iyz="0" izz="0.106208333333"/>
     </inertial>
     
-    <collision name="collision_chassis">
+    <collision>
       <geometry>
         <box size="1 1 2"/>
       </geometry>
     </collision>
+		
 	</link>
 
 
@@ -43,7 +43,7 @@
 		</visual>
 	</link>
 	<joint name="leg1connect" type="fixed">
-		<origin xyz="0 .125 0.06" />
+		<origin xyz="0 0.125 0.06" />
 		<parent link="base_link"/>
 		<child link="leg1"/>
 	</joint>
@@ -53,7 +53,7 @@
 		<visual>
 		  <origin xyz="0 0 0" />
 		  <geometry>
-		    <box size=".3 .05 .12" />
+		    <box size="0.3 0.05 0.12" />
 		  </geometry>
 		  <material name="gray3">
 		    <color rgba="0.15 0.22 0.27 1"/>
@@ -61,7 +61,7 @@
 		</visual>
 	</link>
 	<joint name="leg2connect" type="fixed">
-		<origin xyz="0 -.125 0.06" />
+		<origin xyz="0 -0.125 0.06" />
 		<parent link="base_link"/>
 		<child link="leg2"/>
 	</joint>
@@ -71,7 +71,7 @@
 		<visual>
 		  <origin xyz="0 0 0" />
 		  <geometry>
-		    <box size=".05 .1 .03" />
+		    <box size="0.05 0.1 0.03" />
 		  </geometry>
 		  <material name="red">
 		    <color rgba="0.7 0 0 1"/>
