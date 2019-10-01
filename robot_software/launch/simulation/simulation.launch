@@ -32,7 +32,4 @@ Start simulation
 
   <!-- 5. Start rviz with saved settings -->
   <include file="$(find robot_software)/launch/rviz.launch"/>
-
-  <!-- 6. Create gui to robot control (linear and angular speed) -->
-  <node pkg="rqt_robot_steering" type="rqt_robot_steering" name="rqt_robot_steering"/>
 </launch>

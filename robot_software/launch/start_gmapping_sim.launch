@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+Start gmapping simulation with teleop control
+-->
+<launch>
+  <include file="$(find robot_software)/launch/simulation/simulation.launch"/>
+  <include file="$(find robot_software)/launch/navigation_stack/gmapping.launch"/>
+  <include file="$(find robot_software)/launch/teleop.launch"/>
+</launch>
