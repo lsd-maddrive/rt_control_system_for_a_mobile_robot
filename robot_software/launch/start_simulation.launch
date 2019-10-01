@@ -1,39 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
-Start simulation:
-1. Start Gazebo with empty world
-2. Spawn a robot into Gazebo
-3. Robot state publisher 
-4. Start rviz with saved settings
-5. Start controller (robot simulator)
-6. Create gui to robot control (linear and angular speed)
+Start simulation
 -->
 <launch>
+  <arg name="model" default="burger" doc="[waffle, caterpillar_mobile_robot, ...]"/>
+  <arg name="model_type" default=".urdf.xacro" doc="[.urdf.xacro, .sdf, ...]"/>
+  <arg name="robot_description_pkg" default="turtlebot3_description" doc="[turtlebot3_description, robot_description, ...]"/>
+  <arg name="x_pos" default="0.0"/>
+  <arg name="y_pos" default="0.0"/>
+  <arg name="z_pos" default="0.0"/>
 
-	<include file="$(find gazebo_ros)/launch/empty_world.launch">
-		<arg name="paused" value="false"/>
-		<arg name="use_sim_time" value="true"/>
-		<arg name="gui" value="true"/>
-		<arg name="recording" value="false"/>
-		<arg name="debug" value="false"/>
-	</include>
+  <!-- 1. Start Gazebo with empty world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
 
-	<include file="$(find robot_description)/launch/spawn.launch"/>
+  <!-- 2. Set parameters -->
+  <param name="model" value="$(arg model)"/>
+  <param name="robot_description" command="$(find xacro)/xacro $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
 
+  <!-- 3. Spawn a robot into Gazebo-->
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf"  args="-urdf -model turtlebot3_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
 
-	<param name="robot_description" command="cat $(find robot_description)/urdf/caterpillar_mobile_robot.urdf" />
-<!--
-	<param name="robot_description" command="$(find xacro)/xacro '$(find robot_description)/urdf/caterpillar_mobile_robot.urdf'" />
- =-->
-	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
-		<param name="use_gui" value="False"/>
-	</node>
+  <!-- 4. Robot state publisher -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen"/>	
 
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen"/>
+  <!-- 5. Start rviz with saved settings -->
+  <include file="$(find robot_software)/launch/rviz.launch"/>
 
-	<include file="$(find robot_software)/launch/rviz.launch"/>
-
-  <node pkg="robot_software" type="controller.py" name="robot_controller"/>
-
+  <!-- 6. Create gui to robot control (linear and angular speed) -->
   <node pkg="rqt_robot_steering" type="rqt_robot_steering" name="rqt_robot_steering"/>
 </launch>

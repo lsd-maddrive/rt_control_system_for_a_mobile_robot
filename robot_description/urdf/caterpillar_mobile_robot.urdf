@@ -4,86 +4,95 @@
 
 <robot name="caterpillar_mobile_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-	<link name="base_link">
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0.1" />
+      <geometry>
+        <box size="0.25 0.2 0.05"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.2 0.2 0.2 1" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.25 0.2 0.05"/>
+      </geometry>
+    </collision>	
+  </link>
 
-		<visual>
-			<origin xyz="0 0 0.1" />
-			<geometry>
-				<box size="0.25 0.2 0.05"/>
-			</geometry>
-			<material name="gray">
-				<color rgba="0.2 0.2 0.2 1" />
-			</material>
-		</visual>
-		
+
+  <link name="leg1">
+    <visual>
+      <origin xyz="0 0 0" />
+      <geometry>
+        <box size="0.30 0.05 0.12" />
+      </geometry>
+      <material name="gray2">
+        <color rgba="0.28 0.34 0.39 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.30 0.05 0.12"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="leg1connect" type="fixed">
+    <origin xyz="0 0.125 0.06" />
+    <parent link="base_link"/>
+    <child link="leg1"/>
+  </joint>
+
+
+  <link name="leg2">
+    <visual>
+      <origin xyz="0 0 0" />
+      <geometry>
+        <box size="0.3 0.05 0.12" />
+      </geometry>
+      <material name="gray3">
+        <color rgba="0.15 0.22 0.27 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.3 0.05 0.12"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="leg2connect" type="fixed">
+    <origin xyz="0 -0.125 0.06" />
+    <parent link="base_link"/>
+    <child link="leg2"/>
+  </joint>
+
+
+  <link name="head">
+    <visual>
+      <origin xyz="0 0 0" />
+      <geometry>
+        <box size="0.05 0.1 0.03" />
+      </geometry>
+      <material name="red">
+        <color rgba="0.7 0 0 1"/>
+      </material>
+    </visual>
     <inertial>
       <mass value="5"/>
       <origin xyz="0 0 0.1" rpy="0 0 0"/>
       <inertia ixx="0.0395416666667" ixy="0" ixz="0" iyy="0.106208333333" iyz="0" izz="0.106208333333"/>
     </inertial>
-    
     <collision>
       <geometry>
-        <box size="1 1 2"/>
+        <box size="0.05 0.1 0.03"/>
       </geometry>
     </collision>
-		
-	</link>
-
-
-	<link name="leg1">
-		<visual>
-		  <origin xyz="0 0 0" />
-		  <geometry>
-		    <box size="0.30 0.05 0.12" />
-		  </geometry>
-		  <material name="gray2">
-		    <color rgba="0.28 0.34 0.39 1"/>
-		  </material>
-		</visual>
-	</link>
-	<joint name="leg1connect" type="fixed">
-		<origin xyz="0 0.125 0.06" />
-		<parent link="base_link"/>
-		<child link="leg1"/>
-	</joint>
-
-
-	<link name="leg2">
-		<visual>
-		  <origin xyz="0 0 0" />
-		  <geometry>
-		    <box size="0.3 0.05 0.12" />
-		  </geometry>
-		  <material name="gray3">
-		    <color rgba="0.15 0.22 0.27 1"/>
-		  </material>
-		</visual>
-	</link>
-	<joint name="leg2connect" type="fixed">
-		<origin xyz="0 -0.125 0.06" />
-		<parent link="base_link"/>
-		<child link="leg2"/>
-	</joint>
-
-
-	<link name="head">
-		<visual>
-		  <origin xyz="0 0 0" />
-		  <geometry>
-		    <box size="0.05 0.1 0.03" />
-		  </geometry>
-		  <material name="red">
-		    <color rgba="0.7 0 0 1"/>
-		  </material>
-		</visual>
-	</link>
-	<joint name="head_connect" type="fixed">
-		<origin xyz="0.10 0 0.135" />
-		<parent link="base_link"/>
-		<child link="head"/>
-	</joint>
-	<!--
--->
+  </link>
+  <joint name="head_connect" type="fixed">
+    <origin xyz="0.10 0 0.135" />
+    <parent link="base_link"/>
+    <child link="head"/>
+  </joint>
 
 </robot>

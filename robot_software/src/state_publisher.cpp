@@ -10,9 +10,8 @@
 #include <tf/transform_broadcaster.h>
 
 const static std::string nodeName = "state_listener";
-const static std::string topicName = "positionTopic";
-
-const static std::string parentFrameId = "map";
+const static std::string subscriberName = "positionTopic";
+const static std::string frameId = "map";
 const static std::string childFrameId = "base_link";
 
 void topicCallback(const geometry_msgs::Point32& msg)
@@ -24,7 +23,7 @@ void topicCallback(const geometry_msgs::Point32& msg)
 	double y = msg.y;
 	double angle = msg.z;
 
-	odom_trans.header.frame_id = parentFrameId;
+	odom_trans.header.frame_id = frameId;
 	odom_trans.child_frame_id = childFrameId;
 
 	ROS_INFO("I heard: [%f][%f][%f]", msg.x, msg.y, msg.z);
@@ -42,7 +41,7 @@ int main(int argc, char** argv) {
 	ros::init(argc, argv, nodeName);
     ros::NodeHandle n;
 	uint32_t queueSize = 1000;
-	ros::Subscriber sub = n.subscribe(topicName, queueSize, topicCallback);
+	ros::Subscriber sub = n.subscribe(subscriberName, queueSize, topicCallback);
 	ros::spin();
     return 0;
 }
