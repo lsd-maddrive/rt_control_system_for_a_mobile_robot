@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+Start slam stack
+-->
+<launch>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find robot_software)/maps/map.yaml" />
+
+  <include file="$(find robot_software)/launch/navigation_stack/amcl.launch">
+    <arg name="initial_pose_x" default="0.0"/>
+    <arg name="initial_pose_y" default="0.0"/>
+    <arg name="initial_pose_a" default="0.0"/>
+  </include>
+</launch>
