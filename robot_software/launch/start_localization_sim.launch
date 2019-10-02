@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+Start localization simulation
+-->
+<launch>
+  <include file="$(find robot_software)/launch/simulation/simulation.launch"/>
+  <include file="$(find robot_software)/launch/navigation_stack/localization_stack.launch"/>
+</launch>
