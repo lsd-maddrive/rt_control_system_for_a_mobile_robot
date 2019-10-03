@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Start localization simulation on PC -->
+<launch>
+  <!-- You can enable full stack or only amcl -->
+  <arg name="enable_move_base" default="true" doc="[true, false]"/>
+
+  <!-- 1. Navigation settings -->
+  <include file="$(find robot_software)/launch/simulation/simulation.launch"/>
+  <include file="$(find robot_software)/launch/rviz.launch"/>
+
+  <!-- 2. Navigation settings -->
+  <group if="$(arg enable_move_base)">
+    <include file="$(find robot_software)/launch/navigation_stack/localization_stack.launch"/>
+  </group>
+  <group unless="$(arg enable_move_base)">
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find robot_software)/maps/map.yaml" />
+    <include file="$(find robot_software)/launch/navigation_stack/amcl.launch">
+      <arg name="initial_pose_x" default="0.0"/>
+      <arg name="initial_pose_y" default="0.0"/>
+      <arg name="initial_pose_a" default="0.0"/>
+    </include>
+    <include file="$(find robot_software)/launch/teleop_gui.launch"/>
+  </group>
+</launch>

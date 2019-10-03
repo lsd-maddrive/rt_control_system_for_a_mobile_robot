@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Start real robot SLAM on RPI -->
+<launch>
+  <!-- You can enable full stack or only mapping algorithm -->
+  <arg name="enable_move_base" default="true" doc="[true, false]"/>
+  <arg name="mapping_algorithm" default="gmapping" doc="[gmapping]"/>
+  <!-- Also you can enable or disable debug mode on stm32, when motors closes with encoders -->
+  <arg name="motors_sim_on_stm32" default="true" doc="[true, false]"/>
+
+  <!-- 1. Hardware settings -->
+  <include file="$(find robot_software)/launch/real_robot/robot_configuration.launch"/>
+  <include file="$(find robot_software)/launch/simulation/state_publisher.launch"/>
+
+  <!-- 2. Navigation settings -->
+  <group if="$(arg enable_move_base)">
+    <include file="$(find robot_software)/launch/navigation_stack/slam_stack.launch"/>
+  </group>
+  <group unless="$(arg enable_move_base)">
+    <include file="$(find robot_software)/launch/navigation_stack/$(arg mapping_algorithm).launch"/>
+    <include file="$(find robot_software)/launch/teleop_console.launch"/>
+  </group>
+
+  <!-- 3. Motor simulation command if need -->
+  <group if="$(arg motors_sim_on_stm32)">
+    <include file="$(find robot_software)/launch/real_robot/motors_sim_on_stm32.launch"/>
+  </group>
+</launch>

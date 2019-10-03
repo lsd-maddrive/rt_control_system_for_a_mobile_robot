@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!-- 
+Close the set power of motors and encoders. 
+Every second stm32 will generate as many impulses on each values of encoders ticks that correspond power.
+Use it, if you don't connect motors and stm32.
+-->
+<launch>
+  <node name="activate_simulation_mode_on_stm32" pkg="robot_software" type="activate_simulation_mode_on_stm32.py"/>
+</launch>

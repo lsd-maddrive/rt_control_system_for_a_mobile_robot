@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Start SLAM simulation on PC -->
+<launch>
+  <!-- You can enable full stack or only mapping algorithm -->
+  <arg name="enable_move_base" default="true" doc="[true, false]"/>
+  <arg name="mapping_algorithm" default="gmapping" doc="[gmapping]"/>
+
+  <!-- 1. Simulation settings -->
+  <include file="$(find robot_software)/launch/simulation/simulation.launch"/>
+  <include file="$(find robot_software)/launch/rviz.launch"/>
+
+  <!-- 2. Navigation settings -->
+  <group if="$(arg enable_move_base)">
+    <include file="$(find robot_software)/launch/navigation_stack/slam_stack.launch">
+      <arg name="mapping_algorithm" value="$(arg mapping_algorithm)"/>
+    </include>
+  </group>
+  <group unless="$(arg enable_move_base)">
+    <include file="$(find robot_software)/launch/navigation_stack/$(arg mapping_algorithm).launch"/>
+    <include file="$(find robot_software)/launch/teleop_gui.launch"/>
+  </group>
+</launch>

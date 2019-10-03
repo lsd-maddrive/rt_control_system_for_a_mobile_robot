@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Start real robot localization on RPI -->
+<launch>
+  <!-- You can enable full stack or only mapping algorithm -->
+  <arg name="enable_move_base" default="true" doc="[true, false]"/>
+  <arg name="mapping_algorithm" default="gmapping" doc="[gmapping]"/>
+  <!-- Also you can enable or disable debug mode on stm32, when motors closes with encoders -->
+  <arg name="motors_sim_on_stm32" default="true" doc="[true, false]"/>
+
+  <!-- 1. Hardware settings -->
+  <include file="$(find robot_software)/launch/real_robot/robot_configuration.launch"/>
+  <include file="$(find robot_software)/launch/simulation/state_publisher.launch"/>
+
+  <!-- 2. Navigation settings -->
+  <group if="$(arg enable_move_base)">
+    <include file="$(find robot_software)/launch/navigation_stack/localization_stack.launch"/>
+  </group>
+  <group unless="$(arg enable_move_base)">
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find robot_software)/maps/map.yaml" />
+    <include file="$(find robot_software)/launch/navigation_stack/amcl.launch">
+      <arg name="initial_pose_x" default="0.0"/>
+      <arg name="initial_pose_y" default="0.0"/>
+      <arg name="initial_pose_a" default="0.0"/>
+    </include>
+    <include file="$(find robot_software)/launch/teleop_gui.launch"/>
+  </group>
+
+  <!-- 3. Motor simulation command if need -->
+  <group if="$(arg motors_sim_on_stm32)">
+    <include file="$(find robot_software)/launch/real_robot/motors_sim_on_stm32.launch"/>
+  </group>
+</launch>
