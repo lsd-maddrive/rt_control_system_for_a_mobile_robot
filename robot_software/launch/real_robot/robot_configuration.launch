@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--
 This roslaunch file brings up all the hardware and transform publishes that the robot needs.
-1. Sensors: ydlodar and camera
+1. Sensors: ydlidar and camera
 2. Serialnode for communication between RPI and stm32
 3. The transform configuration from position data that rosserial get from stm32 to odom data for TF.
 -->

@@ -3,6 +3,6 @@
 Start real robot on RPI and activate motor simulation on stm32
 -->
 <launch>
-  <include file="$(find robot_software)/launch/start_real.launch"/>
+  <include file="$(find robot_software)/launch/start_gmapping_real.launch"/>
   <node name="activate_simulation_mode_on_stm32" pkg="robot_software" type="activate_simulation_mode_on_stm32.py" output="screen"/>
 </launch>
