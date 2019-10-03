@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
-Start simulation
--->
+<!-- Start simulation -->
 <launch>
   <arg name="model" default="burger" doc="[waffle, caterpillar_mobile_robot, ...]"/>
   <arg name="model_type" default=".urdf.xacro" doc="[.urdf.xacro, .sdf, ...]"/>

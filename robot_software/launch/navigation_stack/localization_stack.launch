@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
-Start localization stack
--->
+<!--  Start localization stack -->
 <launch>
   <node name="map_server" pkg="map_server" type="map_server" args="$(find robot_software)/maps/map.yaml" />
   <include file="$(find robot_software)/launch/navigation_stack/amcl.launch">

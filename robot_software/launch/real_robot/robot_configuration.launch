@@ -1,30 +1,20 @@
-<?xml version="1.0"?>
-<!--
-This roslaunch file brings up all the hardware and transform publishes that the robot needs.
-1. Sensors: ydlidar and camera
-2. Serialnode for communication between RPI and stm32
-3. The transform configuration from position data that rosserial get from stm32 to odom data for TF.
--->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Bring up all the hardware and transform publishes that the robot needs -->
 <launch>
-  <arg name="ydlidar_output"        default="screen" />
-  <arg name="serial_node_output"    default="screen" />
-  <arg name="tf_broadcaster_output" default="screen" />
-
-  <include file="$(find robot_software)/launch/real_robot/ydlidar.launch">
-    <arg name="ydlidar_output" value="$(arg ydlidar_output)"/>
-  </include>
-
+  <!-- 1. Sensors: ydlidar and camera -->
+  <include file="$(find robot_software)/launch/real_robot/ydlidar.launch"/>
   <include file="$(find robot_software)/launch/real_robot/camera.launch"/>
 
-  <node name="serial_node" pkg="rosserial_python" type="serial_node.py" output="$(arg serial_node_output)">
+  <!-- 2. Serialnode for communication between RPI and stm32 -->
+  <node name="serial_node" pkg="rosserial_python" type="serial_node.py">
     <param name="port" value="/dev/stm32" />
     <param name="baud" value="115200" />
   </node>
 
-  <node name="tf_broadcaster" pkg="robot_software" type="robot_tf_broadcaster.py" output="$(arg tf_broadcaster_output)">
+  <!-- 3. The transform configuration from position data that rosserial get from stm32 to odom data for TF. -->
+  <node name="tf_broadcaster" pkg="robot_software" type="robot_tf_broadcaster.py">
     <remap from="input_pose" to="/positionTopic"/>
   </node>
-
   <node name="state_publisher" pkg="robot_software" type="state_publisher" />
 </launch>
 

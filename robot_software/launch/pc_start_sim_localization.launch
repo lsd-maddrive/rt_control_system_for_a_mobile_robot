@@ -4,7 +4,7 @@
   <!-- You can enable full stack or only amcl -->
   <arg name="enable_move_base" default="true" doc="[true, false]"/>
 
-  <!-- 1. Navigation settings -->
+  <!-- 1. Simulation settings -->
   <include file="$(find robot_software)/launch/simulation/simulation.launch"/>
   <include file="$(find robot_software)/launch/rviz.launch"/>
 
