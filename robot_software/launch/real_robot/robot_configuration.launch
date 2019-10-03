@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Bring up all the hardware and transform publishes that the robot needs -->
 <launch>
+  <arg name="model" default="burger" doc="[burger, waffle, caterpillar_mobile_robot, ...]" />
+
   <!-- 1. Sensors: ydlidar and camera -->
   <include file="$(find robot_software)/launch/real_robot/ydlidar.launch"/>
   <include file="$(find robot_software)/launch/real_robot/camera.launch"/>
@@ -16,5 +18,9 @@
     <remap from="input_pose" to="/positionTopic"/>
   </node>
   <node name="state_publisher" pkg="robot_software" type="state_publisher" />
+
+  <!-- 4. Calculate the forward kinematics of the robot and publish the results via tf using parameter robot_description. -->
+  <param name="robot_description" command="$(find xacro)/xacro $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
 </launch>
 

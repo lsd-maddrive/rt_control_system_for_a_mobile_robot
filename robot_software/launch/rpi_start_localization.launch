@@ -9,7 +9,6 @@
 
   <!-- 1. Hardware settings -->
   <include file="$(find robot_software)/launch/real_robot/robot_configuration.launch"/>
-  <include file="$(find robot_software)/launch/simulation/state_publisher.launch"/>
 
   <!-- 2. Navigation settings -->
   <group if="$(arg enable_move_base)">
