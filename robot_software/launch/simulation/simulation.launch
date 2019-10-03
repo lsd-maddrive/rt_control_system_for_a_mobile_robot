@@ -29,7 +29,4 @@ Start simulation
 
   <!-- 4. Robot state publisher -->
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen"/>	
-
-  <!-- 5. Start rviz with saved settings -->
-  <include file="$(find robot_software)/launch/rviz.launch"/>
 </launch>
