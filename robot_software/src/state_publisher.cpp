@@ -11,8 +11,8 @@
 
 const static std::string nodeName = "state_listener";
 const static std::string subscriberName = "positionTopic";
-const static std::string frameId = "map";
-const static std::string childFrameId = "base_link";
+const static std::string frameId = "odom";
+const static std::string childFrameId = "base_footprint";
 
 void topicCallback(const geometry_msgs::Point32& msg)
 {

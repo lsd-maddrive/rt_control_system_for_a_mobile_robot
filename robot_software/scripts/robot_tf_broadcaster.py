@@ -7,8 +7,8 @@ from nav_msgs.msg import Odometry
 nodeName = "robot_tf_broadcaster"
 publisherName = "odom"
 subscriberName = "input_pose"
-frameId = "map"
-childFrameId = "base_link"
+frameId = "odom"
+childFrameId = "base_footprint"
 
 rospy.init_node(nodeName)
 odom_pub = None
