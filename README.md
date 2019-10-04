@@ -15,13 +15,16 @@ This project consist of firmware and software for real time system for tracked m
 
 ### How to start robot
 
-1. Select RPI to run master, set ROS_MASTER_URI and ROS_IP on RPI and desktop 
-2. Run `start_real.launch` on RPI
+1. Select RPI to run master, set ROS_MASTER_URI and ROS_IP on RPI and PC. You can use `init_env_vars.launch` in this way:
+
+`. ./init_env_vars.launch`
+
+2. Run `rpi_start_slam.launch` or `rpi_start_localization.launch` on RPI
 3. Run `rviz.launch` on desktop
 
 ### How to start simulation
 
-1. Run `start_simulation.launch` on desktop
+1. Run `pc_start_sim_slam.launch` or `pc_start_sim_localization.launch` on PC
 
 ### Troubleshooting
 
@@ -30,9 +33,9 @@ If you have problem with urdf model visualization in rviz in ros melodic, read [
 ### Repository content
 
 * robot_firmware - Eclipse project based on ChibiOS for STM32 Nucleo144-F767ZI board
-* robot_software - ROS package for raspberry PI 2B and PC
-* robot_description - ROS package with robot description
-* ydlidar_ros - ROS package for YDLIDAR
+* robot_software - ROS package for raspberry PI 2B and PC that containts navigation stack, robot configuration and simulation scripts 
+* robot_description - ROS package with robot model description
+* ydlidar_ros - ROS package that has YDLIDAR driver
 
 ### Useful links
 
