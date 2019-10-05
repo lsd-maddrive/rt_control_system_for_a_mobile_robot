@@ -6,12 +6,27 @@ This project consist of firmware and software for real time system for tracked m
 - The firmware is based on the [ChibiOS/RT](http://chibios.org/dokuwiki/doku.php) demos for STM32 Nucleo144-F767ZI
 - The software is based on [ROS Melodic](http://wiki.ros.org/melodic) for Raspberry PI and desktop
 
-### Software installation
+### Preparation for work:
+##### 1. [Installing ubuntu melodic and environments setup](http://wiki.ros.org/melodic/Installation/Ubuntu)
+In result, `echo $ROS_DISTRO` should return `melodic`
+##### 2. Workspace preparation
+Create workspace with any name (for example rts_for_robot_ws) and add automatic workspace settings to ~/.bashrc: 
+```
+mkdir -p ~/rts_for_robot_ws/src
+cd ~/rts_for_robot_ws
+catkin_make
+. ~/rts_for_robot_ws/devel/setup.bash
+echo ". ~/rts_for_robot_ws/devel/setup.bash" >> ~/.bashrc
+```
+You can check result using echo $ROS_PACKAGE_PATH. This command should return 2 paths for system and user workspaces. 
+##### 3. Software installation
 
 1. Clone this repository with submodules:
 `git clone --recursive https://github.com/PonomarevDA/rts_for_mobile_robot_control.git`
 2. Install all dependencies
-`startup.sh`
+`. /startup.sh`
+3. Then do `catkin_make` in workspace folder again
+
 
 ### How to start robot
 
