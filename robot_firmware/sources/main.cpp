@@ -7,6 +7,7 @@
 #include "encoder.hpp"
 #include "odometry.hpp"
 #include "debug.hpp"
+#include "control.hpp"
 
 
 int main()
@@ -19,6 +20,7 @@ int main()
     Encoder::Init();
     Odometry::Init();
     Debug::StartMovementSimulation();
+    Control::Init();
 
     while(1)
     {

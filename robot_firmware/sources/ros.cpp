@@ -7,6 +7,7 @@
 #include "encoder.hpp"
 #include "leds.hpp"
 #include "motors.hpp"
+#include "control.hpp"
 #include "odometry.hpp"
 #include "debug.hpp"
 #include "usb.hpp"
@@ -102,25 +103,8 @@ void modeSelectionCallback( const std_msgs::UInt8& msg )
 
 void cmdCallback(const geometry_msgs::Twist& msg)
 {
-    float linear = msg.linear.x;
-    float rotation = msg.angular.z;
-    
-    if(linear)
-    {
-        Motors::SetLeftPower(20 * linear);
-        Motors::SetRightPower(20 * linear);
-    }
-    else if(rotation)
-    {
-        Motors::SetLeftPower(-20 * rotation);
-        Motors::SetRightPower(20 * rotation);
-    }
-    else
-    {
-        Motors::SetLeftPower(0);
-        Motors::SetRightPower(0);
-    }
-    
+	CmdRepeaterMsg = msg;
+    Control::SetSpeed(msg);
 }
 
 
@@ -157,7 +141,7 @@ static THD_FUNCTION(RosPublisherThread, arg)
         EncoderRightMsg.data = Encoder::GetRightValue();
         EncoderRightTopic.publish( &EncoderRightMsg );
 
-        EncoderLeftSpeedMsg.data = Encoder::GetLeftSpeed();
+        EncoderLeftSpeedMsg.data = Encoder::GetLeftSpeed()*0.0005167;
         EncoderLeftSpeedTopic.publish( &EncoderLeftSpeedMsg );
 
         EncoderRightSpeedMsg.data = Encoder::GetRightSpeed();

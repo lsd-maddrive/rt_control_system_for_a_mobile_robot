@@ -1,6 +1,8 @@
 
 PROJECT_CSRC 	= 
-PROJECT_CPPSRC 	= sources/devices/leds.cpp \
+PROJECT_CPPSRC 	= sources/control_system/control.cpp \
+				  sources/control_system/pid.cpp \
+				  sources/devices/leds.cpp \
 				  sources/devices/adc.cpp \
 				  sources/devices/motors.cpp \
 				  sources/devices/encoder.cpp \
@@ -19,7 +21,8 @@ PROJECT_INCDIR	= sources \
  				  sources/devices \
  				  ros_lib \
  				  ros_lib/ros \
- 				  sources/drivers
+ 				  sources/drivers \
+   				  sources/control_system
 
 PROJECT_LIBS	=
 
