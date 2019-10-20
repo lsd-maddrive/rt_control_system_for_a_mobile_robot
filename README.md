@@ -45,6 +45,10 @@ You can check result using echo $ROS_PACKAGE_PATH. This command should return 2 
 
 If you have problem with urdf model visualization in rviz in ros melodic, read [this comment](https://github.com/ros-visualization/rviz/issues/1249#issuecomment-403351217).
 
+## Firmware
+1. Install some linux distributive, for example ubuntu melodic
+2. Install st-link, arm compiler, eclipse and chibios like [this tutorial](https://github.com/KaiL4eK/STM32_ChibiOS/blob/stable_17.6.x/Startup/Linux_setup.md)
+
 ### Repository content
 
 * robot_firmware - Eclipse project based on ChibiOS for STM32 Nucleo144-F767ZI board
