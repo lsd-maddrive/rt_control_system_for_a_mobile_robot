@@ -94,7 +94,7 @@ PROJECT = ch
 # Imported source files and paths
 # CHIBIOS = ../../chibios176
 # CHIBIOS = $(CHIBIOS_ROOT)
-CHIBIOS = /home/nex-lin/eclipse-workspace/chibios176
+CHIBIOS = /home/dima/ext_repos/ChibiOS
 # Startup files.
 include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f7xx.mk
 # HAL-OSAL files (optional).
@@ -171,7 +171,7 @@ INCDIR = $(CHIBIOS)/os/license \
 MCU  = cortex-m7
 
 #TRGT = arm-elf-
-TRGT = arm-none-eabi-
+TRGT = /home/dima/local_libs/bin/arm-none-eabi-
 CC   = $(TRGT)gcc
 CPPC = $(TRGT)g++
 # Enable loading with g++ only if you need C++ runtime support.
