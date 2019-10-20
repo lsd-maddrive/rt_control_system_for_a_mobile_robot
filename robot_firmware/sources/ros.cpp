@@ -22,7 +22,6 @@
 
 #include <ch.h>
 #include <hal.h>
-#include <chprintf.h>
 
 
 // Bind ROS and Serial Driver

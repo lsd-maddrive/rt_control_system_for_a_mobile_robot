@@ -5,8 +5,6 @@
 #ifndef LEDS_HPP
 #define LEDS_HPP
 
-#include <hal.h>
-
 
 /**
 * @brief Leds board

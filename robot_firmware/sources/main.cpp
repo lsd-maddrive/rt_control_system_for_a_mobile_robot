@@ -1,6 +1,5 @@
 #include <ch.h>
 #include <hal.h>
-#include <chprintf.h>
 #include "ros.hpp"
 #include "leds.hpp"
 #include "motors.hpp"

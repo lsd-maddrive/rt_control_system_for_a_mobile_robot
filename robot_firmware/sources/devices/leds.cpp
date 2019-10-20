@@ -3,7 +3,7 @@
 * @brief Leds board implementation
 */
 
-
+#include <hal.h>
 #include "leds.hpp"
 
 

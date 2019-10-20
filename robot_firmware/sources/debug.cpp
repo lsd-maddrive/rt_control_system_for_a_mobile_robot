@@ -3,6 +3,7 @@
 * @brief debug implementation
 */
 
+#include <ch.h>
 #include "debug.hpp"
 #include "encoder.hpp"
 #include "motors.hpp"

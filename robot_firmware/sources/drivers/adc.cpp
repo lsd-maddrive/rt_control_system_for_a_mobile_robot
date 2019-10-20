@@ -9,9 +9,6 @@
 */
 
 #include "adc.hpp"
-#include <ch.h>
-#include <chprintf.h>
-#include <cstring>
 
 
 /**

@@ -5,8 +5,6 @@
 #ifndef ROS_HPP
 #define ROS_HPP
 
-#include <ch.h>
-
 
 class RosDriver
 {

@@ -1,14 +1,10 @@
 /**
 * @file motors.cpp
 * @brief Motors implementation
-* @note Requirements:
-* - halconf.h - enable HAL_USE_PWM
-* - mcuconf.h - enable STM32_PWM_USE_TIM*
 */
-#include "motors.hpp"
-#include <ch.h>
-#include <chprintf.h>
+
 #include <math.h>
+#include "motors.hpp"
 
 
 PWMDriver* Motors::PwmDriverLeft    = &PWMD4;

@@ -5,8 +5,7 @@
 #ifndef DEBUG_HPP
 #define DEBUG_HPP
 
-#include <ch.h>
-
+#include <stdint.h>
 
 /**
 * @brief Debug
