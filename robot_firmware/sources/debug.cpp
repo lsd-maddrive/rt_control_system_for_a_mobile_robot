@@ -23,10 +23,11 @@ THD_FUNCTION(MovementSimulationThread, arg)
 
     while (TRUE)
     {
-        Debug::SetLeftEncoderValue(Encoder::GetLeftValue() + (Motors::GetLeftPower() >> 2));
-        Debug::SetRightEncoderValue(Encoder::GetRightValue() + (Motors::GetRightPower() >> 2));
-        
-        chThdSleepMilliseconds(250);
+    	int32_t leftImpulses = Motors::GetLeftPower() >> 2;
+    	int32_t rightImpulses = Motors::GetRightPower() >> 2;
+        Debug::SetLeftEncoderValue(Encoder::GetLeftValue() + leftImpulses);
+        Debug::SetRightEncoderValue(Encoder::GetRightValue() + rightImpulses);
+        chThdSleepMilliseconds(50);
     }
 }
 
