@@ -3,10 +3,10 @@
 * @brief Odometry implementation
 */
 
+#include <math.h>
+#include <stdint.h>
 #include "odometry.hpp"
 #include "encoder.hpp"
-#include <math.h>
-
 
 static int32_t enc_right_cache = 0;
 static int32_t enc_left_cache = 0;

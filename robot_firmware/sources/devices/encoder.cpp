@@ -2,11 +2,9 @@
 * @file encoder.cpp
 * @brief Encoder implementation
 */
-#include "encoder.hpp"
-#include "motors.hpp"
 
-#include <ch.h>
 #include <hal.h>
+#include "encoder.hpp"
 
 
 enum
@@ -31,7 +29,6 @@ static int32_t LeftEncoderTicksCash = 0;
 static float LeftEncoderSpeed = 0;
 static float RightEncoderSpeed = 0;
 static float TimerCallbacksPerSecond;
-
 
 static const GPTConfig speedTimerCfg =
 {

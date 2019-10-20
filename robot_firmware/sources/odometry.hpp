@@ -5,8 +5,6 @@
 #ifndef ODOMETRY_HPP
 #define ODOMETRY_HPP
 
-#include <ch.h>
-
 
 typedef struct
 {

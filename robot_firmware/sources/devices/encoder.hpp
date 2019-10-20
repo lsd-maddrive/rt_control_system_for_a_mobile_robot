@@ -5,14 +5,19 @@
 #ifndef ENCODER_HPP
 #define ENCODER_HPP
 
-#include "debug.hpp"
 #include <stdint.h>
+#include "debug.hpp"
 
 
 /**
 * @brief Encoder
-* @details It allows work with two encoders by using EXT (external interrupts
-* with callbacks) and GPT (general purpose timer) drivers on following GPIO:
+* @details There are few requirements and nuance:
+* For incrementing and decrementing encoders values we use:
+* - EXT (external interrupts with callbacks)
+* For calculating encoders speed (number of impulses which we received for last
+* 0.1 second) we use:
+* - GPT (general purpose timer) drivers on GPIO.
+* We use following GPIO:
 * - PE_10  - left encoder A
 * - PE_12  - left encoder B
 * - PE_14  - right encoder A
