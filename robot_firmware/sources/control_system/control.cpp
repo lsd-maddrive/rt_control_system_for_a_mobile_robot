@@ -1,5 +1,5 @@
 /**
-* @file motors.cpp
+* @file control.cpp
 */
 
 #include <ch.h>
@@ -8,12 +8,16 @@
 #include "motors.hpp"
 #include "encoder.hpp"
 #include "odometry.hpp"
+#include "robot_calibration.hpp"
+
+static constexpr float DELTA_TIME_S = 0.025;
+static constexpr uint32_t DELTA_TIME_MS = DELTA_TIME_S * 1000;
 
 static thread_t* PidProcessThreadPointer = nullptr;
 static THD_WORKING_AREA(pidProcessThreadWorkingArea, 128);
 
-PidRegulator Control::RightSpeed(600, 600, 0);
-PidRegulator Control::LeftSpeed(600, 600, 0);
+PidRegulator Control::RightSpeed(P_DEFAULT, I_DEFAULT, D_DEFAULT, DELTA_TIME_S);
+PidRegulator Control::LeftSpeed(P_DEFAULT, I_DEFAULT, D_DEFAULT, DELTA_TIME_S);
 
 /**
 * @brief Pid regulator process thread function
@@ -24,19 +28,20 @@ THD_FUNCTION(PidProcessThread, arg)
 {
     arg = arg;
 
-    const float meters_per_tick = 0.0005167;
-
     while (TRUE)
     {
-    	float currentLeftSpeed = Encoder::GetLeftSpeed() * meters_per_tick;
-    	float currentRightSpeed = Encoder::GetLeftSpeed() * meters_per_tick;
+    	float currentLeftSpeed = Encoder::GetLeftSpeed();
+    	float currentRightSpeed = Encoder::GetRightSpeed();
         Motors::SetLeftPower(Control::LeftSpeed.Do(currentLeftSpeed));
         Motors::SetRightPower(Control::RightSpeed.Do(currentRightSpeed));
-
-        chThdSleepMilliseconds(25);
+        chThdSleepMilliseconds(DELTA_TIME_MS);
     }
 }
 
+
+/**
+* @brief Start thread for pid regulators
+*/
 void Control::Init()
 {
 	if(PidProcessThreadPointer == nullptr)
@@ -51,6 +56,13 @@ void Control::Init()
 	RightSpeed.SetValue(0);
 }
 
+
+/**
+* @param msg - desired speed (linear.x, linear.y, angular.z)
+* @note PID regulators work with following parameters:
+* - input - encoders speeds which will provide desired speed
+* - output - result motor pwm
+*/
 void Control::SetSpeed(const geometry_msgs::Twist& msg)
 {
     float linear = msg.linear.x;
@@ -58,17 +70,36 @@ void Control::SetSpeed(const geometry_msgs::Twist& msg)
 
     if(linear)
     {
-    	LeftSpeed.SetValue(linear);
-    	RightSpeed.SetValue(linear);
+    	LeftSpeed.SetValue(linear / METERS_PER_TICK);
+    	RightSpeed.SetValue(linear / METERS_PER_TICK);
     }
     else if(rotation)
     {
-        Motors::SetLeftPower(-100 * rotation);
-        Motors::SetRightPower(100 * rotation);
+        LeftSpeed.SetValue(-rotation / METERS_PER_TICK * WHEELTRACK);
+		RightSpeed.SetValue(rotation / METERS_PER_TICK * WHEELTRACK);
     }
     else
     {
         Motors::SetLeftPower(0);
         Motors::SetRightPower(0);
+        LeftSpeed.SetValue(0);
+		RightSpeed.SetValue(0);
     }
+}
+
+
+geometry_msgs::Twist Control::GetSpeed()
+{
+	geometry_msgs::Twist speed;
+
+	auto leftEncSpeed = Encoder::GetLeftSpeed();
+	auto rightEncSpeed = Encoder::GetRightSpeed();
+
+	auto leftWheelSpeed = leftEncSpeed * METERS_PER_TICK;
+	auto rightWheelSpeed = rightEncSpeed * METERS_PER_TICK;
+
+	speed.linear.x = (rightWheelSpeed + leftWheelSpeed) / 2;
+	speed.angular.z = (leftWheelSpeed - rightWheelSpeed) / WHEELTRACK;
+
+	return speed;
 }

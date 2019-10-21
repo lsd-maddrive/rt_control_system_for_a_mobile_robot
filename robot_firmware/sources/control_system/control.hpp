@@ -15,6 +15,8 @@ public:
     static void SetSpeed(const geometry_msgs::Twist&);
     static PidRegulator LeftSpeed;
     static PidRegulator RightSpeed;
+
+    static geometry_msgs::Twist GetSpeed();
 };
 
 #endif /* CONTROL_HPP */

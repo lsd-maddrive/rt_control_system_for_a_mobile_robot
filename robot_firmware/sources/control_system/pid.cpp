@@ -6,9 +6,9 @@
 #include "pid.hpp"
 
 
-PidRegulator::PidRegulator(Coefficient_t p, Coefficient_t i, Coefficient_t d):
-	K_P(p), K_I(i), K_D(d), Integral(0), DesiredInput(0), OUTPUT_MAX(100),
-	OUTPUT_MIN(-100), DeltaT(0.025) {}
+PidRegulator::PidRegulator(Coefficient_t p, Coefficient_t i, Coefficient_t d, float deltaT):
+	K_P(p), K_I(i), K_D(d), DeltaT(deltaT), Integral(0), DesiredInput(0),
+	OUTPUT_MAX(100), OUTPUT_MIN(-100) {}
 
 
 void PidRegulator::SetValue(Input_t desiredInput)

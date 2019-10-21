@@ -15,7 +15,7 @@ public:
 	typedef int8_t Output_t;
 	typedef const float Coefficient_t;
 
-	PidRegulator(Coefficient_t p, Coefficient_t i, Coefficient_t d);
+	PidRegulator(Coefficient_t p, Coefficient_t i, Coefficient_t d, float t);
 	void SetValue(Input_t desiredInput);
 	Output_t Do(Input_t currentInput);
 
@@ -26,11 +26,11 @@ private:
 	Coefficient_t K_P;
 	Coefficient_t K_I;
 	Coefficient_t K_D;
+	const float DeltaT;
 	Integral_t Integral;
 	Input_t DesiredInput;
 	const Output_t OUTPUT_MAX;
 	const Output_t OUTPUT_MIN;
-	const float DeltaT;
 };
 
 #endif /* PID_HPP */

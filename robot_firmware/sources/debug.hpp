@@ -21,8 +21,8 @@ public:
     static void StopMovementSimulation();
 private:
     friend void MovementSimulationThread(void* arg);
-    static void SetLeftEncoderValue(int32_t encoderValue);
-    static void SetRightEncoderValue(int32_t encoderValue);
+    static void AddLeftEncoderValue(int32_t encoderValue);
+    static void AddRightEncoderValue(int32_t encoderValue);
 };
 
 #endif /* DEBUG_HPP */

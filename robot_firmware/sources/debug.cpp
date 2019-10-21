@@ -22,13 +22,18 @@ THD_FUNCTION(MovementSimulationThread, arg)
 {
     arg = arg;
 
+    static float needLeftImpulses = 0;
+	static float needRightImpulses = 0;
+
     while (TRUE)
     {
-    	int32_t leftImpulses = Motors::GetLeftPower() >> 2;
-    	int32_t rightImpulses = Motors::GetRightPower() >> 2;
-        Debug::SetLeftEncoderValue(Encoder::GetLeftValue() + leftImpulses);
-        Debug::SetRightEncoderValue(Encoder::GetRightValue() + rightImpulses);
-        chThdSleepMilliseconds(50);
+    	needLeftImpulses += Motors::GetLeftPower() * 0.05;
+    	needRightImpulses += Motors::GetRightPower() * 0.05;
+        Debug::AddLeftEncoderValue(static_cast<int32_t>(needLeftImpulses));
+        Debug::AddRightEncoderValue(static_cast<int32_t>(needRightImpulses));
+        needLeftImpulses -= static_cast<int32_t>(needLeftImpulses);
+        needRightImpulses -= static_cast<int32_t>(needRightImpulses);
+        chThdSleepMilliseconds(10);
     }
 }
 
@@ -61,28 +66,30 @@ void Debug::StopMovementSimulation()
 
 
 /**
-* @brief Set left encoder value 
+* @brief Add impulses to left encoder
 * @note This function is private because set encoder values operations were
 *       created only for debug. Methods Debug::SetEncodersValue are necessary
 *       because friend is not inherited, so thread function can't use methods 
 *       like Encoder::SetEncodersValue.
 * @param[in] encoderValue - desired value of encoder value
 */
-void Debug::SetLeftEncoderValue(int32_t encoderValue)
+void Debug::AddLeftEncoderValue(int32_t encoderValue)
 {
-    Encoder::SetLeftValue(encoderValue);
+	if(encoderValue != 0)
+		Encoder::SetLeftValue(Encoder::GetLeftValue() + encoderValue);
 }
 
 
 /**
-* @brief Set right encoder value 
+* @brief Add impulses to right encoder
 * @note This function is private because set encoder values operations were
 *       created only for debug. Methods Debug::SetEncodersValue are necessary
 *       because friend is not inherited, so thread function can't use methods 
 *       like Encoder::SetEncodersValue.
 * @param[in] encoderValue - desired value of encoder value
 */
-void Debug::SetRightEncoderValue(int32_t encoderValue)
+void Debug::AddRightEncoderValue(int32_t encoderValue)
 {
-    Encoder::SetRightValue(encoderValue);
+	if(encoderValue != 0)
+		Encoder::SetRightValue(Encoder::GetRightValue() + encoderValue);
 }
