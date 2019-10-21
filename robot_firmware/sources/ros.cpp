@@ -176,7 +176,7 @@ static THD_FUNCTION(RosPublisherThread, arg)
         }
 
 
-        chThdSleepMilliseconds(1000);
+        chThdSleepMilliseconds(100);
     }
 }
 
