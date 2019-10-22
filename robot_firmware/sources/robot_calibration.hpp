@@ -15,7 +15,7 @@ static constexpr float WHEELTRACK = 0.23;
 
 /// PID constants
 static constexpr float P_DEFAULT = 0.025;
-static constexpr float I_DEFAULT = 2.5;
+static constexpr float I_DEFAULT = 1;
 static constexpr float D_DEFAULT = 0;
 
 /// PID constants
