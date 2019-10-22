@@ -75,8 +75,8 @@ void Control::SetSpeed(const geometry_msgs::Twist& msg)
     }
     else if(rotation)
     {
-        LeftSpeed.SetValue(-rotation / METERS_PER_TICK * WHEELTRACK);
-		RightSpeed.SetValue(rotation / METERS_PER_TICK * WHEELTRACK);
+        LeftSpeed.SetValue(-rotation / METERS_PER_TICK * WHEELTRACK / 2);
+		RightSpeed.SetValue(rotation / METERS_PER_TICK * WHEELTRACK / 2);
     }
     else
     {
@@ -99,7 +99,7 @@ geometry_msgs::Twist Control::GetSpeed()
 	auto rightWheelSpeed = rightEncSpeed * METERS_PER_TICK;
 
 	speed.linear.x = (rightWheelSpeed + leftWheelSpeed) / 2;
-	speed.angular.z = (leftWheelSpeed - rightWheelSpeed) / WHEELTRACK;
+	speed.angular.z = (rightWheelSpeed - leftWheelSpeed) / WHEELTRACK;
 
 	return speed;
 }

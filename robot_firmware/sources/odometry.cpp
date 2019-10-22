@@ -39,7 +39,7 @@ OdometryPosition_t* Odometry::GetPosition()
 	EncLeftCache = encLeftTicks;
 
 	float fullPath = (passedPathRight + passedPathLeft) / 2;
-	pose.dir = pose.dir + (passedPathLeft - passedPathRight) / WHEELTRACK;
+	pose.dir = pose.dir + (passedPathRight - passedPathLeft) / WHEELTRACK;
 	pose.x = pose.x + fullPath * cos( pose.dir );
 	pose.y = pose.y + fullPath * sin( pose.dir );
 
