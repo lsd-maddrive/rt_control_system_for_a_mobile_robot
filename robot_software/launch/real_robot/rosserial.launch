@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Start comminucation with STM32 -->
+<launch>
+  <node name="serial_node" pkg="rosserial_python" type="serial_node.py">
+    <param name="port" value="/dev/stm32" />
+    <param name="baud" value="115200" />
+  </node>
+</launch>
+

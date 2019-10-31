@@ -7,11 +7,8 @@
   <include file="$(find robot_software)/launch/real_robot/ydlidar.launch"/>
   <include file="$(find robot_software)/launch/real_robot/camera.launch"/>
 
-  <!-- 2. Serialnode for communication between RPI and stm32 -->
-  <node name="serial_node" pkg="rosserial_python" type="serial_node.py">
-    <param name="port" value="/dev/stm32" />
-    <param name="baud" value="115200" />
-  </node>
+  <!-- 2. Serial node for communication between RPI and stm32 -->
+  <include file="$(find robot_software)/launch/real_robot/rosserial.launch"/>
 
   <!-- 3. The transform configuration from position data that rosserial get from stm32 to odom data for TF. -->
   <node name="tf_broadcaster" pkg="robot_software" type="robot_tf_broadcaster.py">
