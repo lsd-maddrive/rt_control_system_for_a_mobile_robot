@@ -51,7 +51,6 @@ void cmdCallback( const geometry_msgs::Twist& msg );
 // 1. Node is a process that performs computation.
 static ros::NodeHandle RosNode;
 // 2. Nodes communicate with each other by publishing messages to topics.
-static std_msgs::String TestStringMsg;
 static std_msgs::Int32 EncoderLeftMsg;
 static std_msgs::Int32 EncoderRightMsg;
 static std_msgs::Float32 EncoderLeftSpeedMsg;
@@ -60,8 +59,8 @@ static std_msgs::Int32 MotorLeftMsg;
 static std_msgs::Int32 MotorRightMsg;
 static geometry_msgs::Point32 PositionMsg;
 static geometry_msgs::Twist CmdRepeaterMsg;
+static geometry_msgs::Twist SpeedMsg;
 // 3. Topics are named buses over which nodes exchange messages.
-static ros::Publisher TestTopic("testTopic", &TestStringMsg);
 static ros::Publisher EncoderLeftTopic("encoderLeftTopic", &EncoderLeftMsg);
 static ros::Publisher EncoderRightTopic("encoderRightTopic", &EncoderRightMsg);
 static ros::Publisher EncoderLeftSpeedTopic("encoderLeftSpeedTopic", &EncoderLeftSpeedMsg);
@@ -70,9 +69,10 @@ static ros::Publisher MotorLeftTopic("motorLeftTopic", &MotorLeftMsg);
 static ros::Publisher MotorRightTopic("motorRightTopic", &MotorRightMsg);
 static ros::Publisher PositionTopic("positionTopic", &PositionMsg);
 static ros::Publisher CmdRepeaterTopic("cmdRepeaterTopic", &CmdRepeaterMsg);
+static ros::Publisher SpeedTopic("speedTopic", &SpeedMsg);
 // 4. Subscribers topics:
 ros::Subscriber<std_msgs::UInt8> ModeSelectionTopic("modeSelectionTopic", &modeSelectionCallback);
-ros::Subscriber<geometry_msgs::Twist> CmdTopic("cmdTopic", &cmdCallback);
+ros::Subscriber<geometry_msgs::Twist> CmdTopic("cmd_vel", &cmdCallback);
 
 
 void modeSelectionCallback( const std_msgs::UInt8& msg )
@@ -128,8 +128,6 @@ static THD_FUNCTION(RosPublisherThread, arg)
 {
     (void)arg;
     chRegSetThreadName("RosPublisherThread");
-
-    TestStringMsg.data = "Hello, world";
     
     while (true)
     {
@@ -140,7 +138,7 @@ static THD_FUNCTION(RosPublisherThread, arg)
         EncoderRightMsg.data = Encoder::GetRightValue();
         EncoderRightTopic.publish( &EncoderRightMsg );
 
-        EncoderLeftSpeedMsg.data = Encoder::GetLeftSpeed()*0.0005167;
+        EncoderLeftSpeedMsg.data = Encoder::GetLeftSpeed();
         EncoderLeftSpeedTopic.publish( &EncoderLeftSpeedMsg );
 
         EncoderRightSpeedMsg.data = Encoder::GetRightSpeed();
@@ -152,6 +150,9 @@ static THD_FUNCTION(RosPublisherThread, arg)
         MotorRightMsg.data = Motors::GetRightPower();
         MotorRightTopic.publish( &MotorRightMsg );
 
+        SpeedMsg = Control::GetSpeed();
+        SpeedTopic.publish(&SpeedMsg);
+
         OdometryPosition_t* position = Odometry::GetPosition();
         PositionMsg.x = position->x;
         PositionMsg.y = position->y;
@@ -159,7 +160,6 @@ static THD_FUNCTION(RosPublisherThread, arg)
         PositionTopic.publish(&PositionMsg);
 
         // Publish info for debugging:
-        TestTopic.publish(&TestStringMsg);
         CmdRepeaterTopic.publish(&CmdRepeaterMsg);
         
         // Led
@@ -204,7 +204,6 @@ void RosDriver::Init()
     RosNode.initNode();
     RosNode.setSpinTimeout( 20 );
     
-    RosNode.advertise(TestTopic);
     RosNode.advertise(EncoderLeftTopic);
     RosNode.advertise(EncoderRightTopic);
     RosNode.advertise(EncoderLeftSpeedTopic);
@@ -213,6 +212,7 @@ void RosDriver::Init()
     RosNode.advertise(MotorRightTopic);
     RosNode.advertise(PositionTopic);
     RosNode.advertise(CmdRepeaterTopic);
+    RosNode.advertise(SpeedTopic);
 
     RosNode.subscribe(CmdTopic);
     RosNode.subscribe(ModeSelectionTopic);
