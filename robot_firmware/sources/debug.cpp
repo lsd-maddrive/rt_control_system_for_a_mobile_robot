@@ -7,6 +7,7 @@
 #include "debug.hpp"
 #include "encoder.hpp"
 #include "motors.hpp"
+#include "leds.hpp"
 
 
 static thread_t* MovementSimulationThreadPointer = nullptr;
@@ -40,6 +41,7 @@ THD_FUNCTION(MovementSimulationThread, arg)
 
 void Debug::StartMovementSimulation()
 {
+    Leds::OnSecond();
     if(MovementSimulationThreadPointer == nullptr)
     {
         MovementSimulationThreadPointer = chThdCreateStatic(movementSimulationThreadWorkingArea, 
@@ -52,12 +54,12 @@ void Debug::StartMovementSimulation()
     {
         chThdStart(MovementSimulationThreadPointer);
     }
-    
 }
 
 
 void Debug::StopMovementSimulation()
 {
+	Leds::OffSecond();
     if(MovementSimulationThreadPointer != nullptr)
     {
         chThdWait(MovementSimulationThreadPointer);

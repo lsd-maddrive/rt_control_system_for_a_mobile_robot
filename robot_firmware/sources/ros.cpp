@@ -77,22 +77,7 @@ ros::Subscriber<geometry_msgs::Twist> CmdTopic("cmd_vel", &cmdCallback);
 
 void modeSelectionCallback( const std_msgs::UInt8& msg )
 {
-    if(msg.data & 1)
-        Leds::OnFirst();
-    else
-        Leds::OffFirst();
-
-    if(msg.data & 2)
-        Leds::OnSecond();
-    else
-        Leds::OffSecond();
-
-    if(msg.data & 4)
-        Leds::OnThird();
-    else
-        Leds::OffThird();
-    
-    if(msg.data & 8)
+    if(msg.data > 0)
         Debug::StartMovementSimulation();
     else
         Debug::StopMovementSimulation();

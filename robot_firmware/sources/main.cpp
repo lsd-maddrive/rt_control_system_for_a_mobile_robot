@@ -18,7 +18,7 @@ int main()
     RosDriver::Init();
     Encoder::Init();
     Odometry::Init();
-    Debug::StartMovementSimulation();
+    //Debug::StartMovementSimulation();
     Control::Init();
 
     while(1)
