@@ -10,23 +10,29 @@ This project consist of firmware and software for real time system for tracked m
 ##### 1. [Installing ubuntu melodic and environments setup](http://wiki.ros.org/melodic/Installation/Ubuntu)
 In result, `echo $ROS_DISTRO` should return `melodic`
 ##### 2. Workspace preparation
-Create workspace with any name (for example rts_for_robot_ws) and add automatic workspace settings to ~/.bashrc: 
+1. Create workspace with any name (for example rts_for_robot_ws) and clone this repository to [your workspace]/src folder:
 ```
 mkdir -p ~/rts_for_robot_ws/src
-cd ~/rts_for_robot_ws
+cd rts_for_robot_ws/src/
+git clone --recursive https://github.com/PonomarevDA/rts_for_mobile_robot_control.git .
+```
+Note that you should use --recursive to fetch submodules and use dot in the end of last command so as not to create a directory rts_for_robot_ws inside src folder.
+
+2. Build the workspace code and add automatic workspace settings to ~/.bashrc
+```
+cd ..
 catkin_make
 . ~/rts_for_robot_ws/devel/setup.bash
 echo ". ~/rts_for_robot_ws/devel/setup.bash" >> ~/.bashrc
 ```
-You can check result using echo $ROS_PACKAGE_PATH. This command should return 2 paths for system and user workspaces. 
-##### 3. Software installation
+You can check result using `echo $ROS_PACKAGE_PATH`. This command should return 2 paths for system and user workspaces. For example:
+/home/ubuntu/rts_for_robot_ws/src:/opt/ros/melodic/share
 
-1. Clone this repository with submodules:
-`git clone --recursive https://github.com/PonomarevDA/rts_for_mobile_robot_control.git`
-2. Install all dependencies
-`. /startup.sh`
-3. Then do `catkin_make` in workspace folder again
-
+3. Install all dependencies
+```
+cd src/
+./startup.sh
+```
 
 ### How to start robot
 
