@@ -1,12 +1,18 @@
-obstacle_range: 3.0
+# Global costmap parameters
+obstacle_range: 2.5
 raytrace_range: 3.5
 
+# Robot description parameters
+inflation_radius: 0.50
 footprint: [[-0.105, -0.105], [-0.105, 0.105], [0.041, 0.105], [0.041, -0.105]]
-#robot_radius: 0.105
+#robot_radius: 0.105 # only for circular robots
 
-inflation_radius: 1.0
+# Global costmap parameters
 cost_scaling_factor: 3.0
 
-map_type: costmap
+# Sensor management parameters
 observation_sources: scan
 scan: {sensor_frame: base_scan, data_type: LaserScan, topic: scan, marking: true, clearing: true}
+
+# Map type parameters
+map_type: costmap
