@@ -1,6 +1,4 @@
 #!/bin/bash
-
-echo "Warning: you should run this script in this way: '. ./init_env_vars.sh'."
 echo "Evironment variables have been set. Now they are:"
 
 my_ip=$(hostname -I)
