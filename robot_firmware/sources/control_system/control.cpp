@@ -58,32 +58,40 @@ void Control::Init()
 
 
 /**
-* @param msg - desired speed (linear.x, linear.y, angular.z)
+* @param msg - desired speed (linear.x, angular.z)
 * @note PID regulators work with following parameters:
 * - input - encoders speeds which will provide desired speed
 * - output - result motor pwm
 */
 void Control::SetSpeed(const geometry_msgs::Twist& msg)
 {
-    float linear = msg.linear.x;
-    float rotation = msg.angular.z;
+	float linear = msg.linear.x;
+	float rotation = msg.angular.z;
 
-    if(linear)
+	float linearSpeedInTicks = linear / METERS_PER_TICK;
+	float angularSpeedInTicks = rotation / METERS_PER_TICK * WHEELTRACK / 2;
+
+    if( (linear != 0) && (rotation == 0) )
     {
-    	LeftSpeed.SetValue(linear / METERS_PER_TICK);
-    	RightSpeed.SetValue(linear / METERS_PER_TICK);
+    	LeftSpeed.SetValue(linearSpeedInTicks);
+    	RightSpeed.SetValue(linearSpeedInTicks);
     }
-    else if(rotation)
+    else if( (linear == 0) && (rotation != 0) )
     {
-        LeftSpeed.SetValue(-rotation / METERS_PER_TICK * WHEELTRACK / 2);
-		RightSpeed.SetValue(rotation / METERS_PER_TICK * WHEELTRACK / 2);
+    	LeftSpeed.SetValue(-angularSpeedInTicks);
+    	RightSpeed.SetValue(angularSpeedInTicks);
     }
-    else
+    else if( (linear == 0) && (rotation == 0) )
     {
         Motors::SetLeftPower(0);
         Motors::SetRightPower(0);
         LeftSpeed.SetValue(0);
-		RightSpeed.SetValue(0);
+        RightSpeed.SetValue(0);
+    }
+    else
+    {
+    	LeftSpeed.SetValue(linearSpeedInTicks - angularSpeedInTicks);
+    	RightSpeed.SetValue(linearSpeedInTicks + angularSpeedInTicks);
     }
 }
 
