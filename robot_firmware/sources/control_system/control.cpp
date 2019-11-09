@@ -3,6 +3,7 @@
 */
 
 #include <ch.h>
+#include <stdlib.h>
 
 #include "control.hpp"
 #include "motors.hpp"
@@ -32,9 +33,22 @@ THD_FUNCTION(PidProcessThread, arg)
     {
     	float currentLeftSpeed = Encoder::GetLeftSpeed();
     	float currentRightSpeed = Encoder::GetRightSpeed();
-        Motors::SetLeftPower(Control::LeftSpeed.Do(currentLeftSpeed));
-        Motors::SetRightPower(Control::RightSpeed.Do(currentRightSpeed));
-        chThdSleepMilliseconds(DELTA_TIME_MS);
+
+    	int8_t leftPower = Control::LeftSpeed.Do(currentLeftSpeed);
+    	int8_t rightPower = Control::RightSpeed.Do(currentRightSpeed);
+
+    	if (abs(Control::LeftSpeed.GetDesiredValue()) < MIN_ABS_WHEEL_SPEED)
+    	{
+    		leftPower = 0;
+    	}
+    	if (abs(Control::RightSpeed.GetDesiredValue()) < MIN_ABS_WHEEL_SPEED)
+    	{
+    		rightPower = 0;
+    	}
+
+    	Motors::SetLeftPower(leftPower);
+    	Motors::SetRightPower(rightPower);
+    	chThdSleepMilliseconds(DELTA_TIME_MS);
     }
 }
 
@@ -71,28 +85,30 @@ void Control::SetSpeed(const geometry_msgs::Twist& msg)
 	float linearSpeedInTicks = linear / METERS_PER_TICK;
 	float angularSpeedInTicks = rotation / METERS_PER_TICK * WHEELTRACK / 2;
 
-    if( (linear != 0) && (rotation == 0) )
-    {
-    	LeftSpeed.SetValue(linearSpeedInTicks);
-    	RightSpeed.SetValue(linearSpeedInTicks);
-    }
-    else if( (linear == 0) && (rotation != 0) )
-    {
-    	LeftSpeed.SetValue(-angularSpeedInTicks);
-    	RightSpeed.SetValue(angularSpeedInTicks);
-    }
-    else if( (linear == 0) && (rotation == 0) )
-    {
-        Motors::SetLeftPower(0);
-        Motors::SetRightPower(0);
-        LeftSpeed.SetValue(0);
-        RightSpeed.SetValue(0);
-    }
-    else
-    {
-    	LeftSpeed.SetValue(linearSpeedInTicks - angularSpeedInTicks);
-    	RightSpeed.SetValue(linearSpeedInTicks + angularSpeedInTicks);
-    }
+	float leftSpeed;
+	float rightSpeed;
+	if( (abs(linear) < MIN_ABS_LINEAR_SPEED) && (abs(rotation) < MIN_ABS_ANGULAR_SPEED) )
+	{
+		leftSpeed = 0;
+		rightSpeed = 0;
+	}
+	else if( (abs(linear) >= MIN_ABS_LINEAR_SPEED) && (abs(rotation) >= MIN_ABS_ANGULAR_SPEED) )
+	{
+		leftSpeed = linearSpeedInTicks - angularSpeedInTicks;
+		rightSpeed = linearSpeedInTicks + angularSpeedInTicks;
+	}
+	else if( abs(linear) >= MIN_ABS_LINEAR_SPEED )
+	{
+		leftSpeed = linearSpeedInTicks;
+		rightSpeed = linearSpeedInTicks;
+	}
+	else if( abs(rotation) >= MIN_ABS_ANGULAR_SPEED )
+	{
+		leftSpeed = -angularSpeedInTicks;
+		rightSpeed = angularSpeedInTicks;
+	}
+	LeftSpeed.SetValue(leftSpeed);
+	RightSpeed.SetValue(rightSpeed);
 }
 
 

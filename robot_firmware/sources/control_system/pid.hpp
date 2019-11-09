@@ -17,6 +17,7 @@ public:
 
 	PidRegulator(Coefficient_t p, Coefficient_t i, Coefficient_t d, float t);
 	void SetValue(Input_t desiredInput);
+	Input_t GetDesiredValue();
 	Output_t Do(Input_t currentInput);
 
 private:

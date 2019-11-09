@@ -16,6 +16,11 @@ void PidRegulator::SetValue(Input_t desiredInput)
 	DesiredInput = desiredInput;
 }
 
+PidRegulator::Input_t PidRegulator::GetDesiredValue()
+{
+	return DesiredInput;
+}
+
 
 PidRegulator::Output_t PidRegulator::Do(PidRegulator::Input_t currentInput)
 {
