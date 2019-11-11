@@ -31,23 +31,28 @@ THD_FUNCTION(PidProcessThread, arg)
 
     while (TRUE)
     {
-    	float currentLeftSpeed = Encoder::GetLeftSpeed();
-    	float currentRightSpeed = Encoder::GetRightSpeed();
-
-    	int8_t leftPower = Control::LeftSpeed.Do(currentLeftSpeed);
-    	int8_t rightPower = Control::RightSpeed.Do(currentRightSpeed);
-
-    	if (abs(Control::LeftSpeed.GetDesiredValue()) < MIN_ABS_WHEEL_SPEED)
+    	int8_t leftMotorPower, rightMotorPower;
+    	if(abs(Control::LeftSpeed.GetDesiredValue()) < MIN_ABS_WHEEL_SPEED)
     	{
-    		leftPower = 0;
+    		Control::LeftSpeed.Reset();
+    		leftMotorPower = 0;
     	}
-    	if (abs(Control::RightSpeed.GetDesiredValue()) < MIN_ABS_WHEEL_SPEED)
+    	else
     	{
-    		rightPower = 0;
+    		leftMotorPower = Control::LeftSpeed.Do(Encoder::GetLeftSpeed());
+    	}
+    	if(abs(Control::RightSpeed.GetDesiredValue()) < MIN_ABS_WHEEL_SPEED)
+    	{
+    		Control::RightSpeed.Reset();
+    		rightMotorPower = 0;
+    	}
+    	else
+    	{
+    		rightMotorPower = Control::RightSpeed.Do(Encoder::GetRightSpeed());
     	}
 
-    	Motors::SetLeftPower(leftPower);
-    	Motors::SetRightPower(rightPower);
+    	Motors::SetLeftPower(leftMotorPower);
+    	Motors::SetRightPower(rightMotorPower);
     	chThdSleepMilliseconds(DELTA_TIME_MS);
     }
 }

@@ -16,6 +16,11 @@ void PidRegulator::SetValue(Input_t desiredInput)
 	DesiredInput = desiredInput;
 }
 
+void PidRegulator::Reset()
+{
+	Integral = Integral_t(0);
+}
+
 PidRegulator::Input_t PidRegulator::GetDesiredValue()
 {
 	return DesiredInput;
