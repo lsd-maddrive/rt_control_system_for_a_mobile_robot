@@ -9,16 +9,20 @@ from geometry_msgs.msg import Twist, Vector3, Point32
 
 # Choose mode
 # 1. Test mode
+PLOT_ONLY = False
+# 1.1. Plot only params
+JSON_FILE_NAME = "test_pid_result_1.json"
+# 1.2. Gathering type
 ENABLE_TEST = False
+# 1.2.1. Real gathering params
+DATA_GATHERING_TIME = 30
+# 1.2.2. Test gathering params
 TIME_BEFORE_SPEED_CHANGE = float(2)
 DESIRED_LINEAR_SPEEDS = [+0.15, -0.15, +0.00, +0.00, +0.00, +0.00]
 DESIRED_ANGULAR_SPEEDS = [0.00, -0.00, +0.00, +0.50, -0.50, +0.00]
 DESIRED_SPEED_LENGTH = len(DESIRED_LINEAR_SPEEDS)
-# 2. Real mode
-DATA_GATHERING_TIME = 30
-# 3. Other settings
+# 2. Other settings
 REAL_TIME_PLOTTING = False
-PLOT_ONLY = True
 
 
 # Constants
@@ -52,13 +56,13 @@ class Json:
     DATA = "data"
     TIME = "time"
 
-class Topic:
-    def initCommon(self, topic):
+class Topic(object):
+    def __init__(self, topic, data_type):
         self.TOPIC = topic
         self.time = list()
-        self.sub = rospy.Subscriber(self.TOPIC, self.dataType, self.handle)
+        self.sub = rospy.Subscriber(self.TOPIC, data_type, self.handle)
         self.__start_time = rospy.get_rostime()
-    def appendRelativeTime(self):
+    def append_relative_time(self):
         current_time = rospy.get_rostime()
         relative_secs = current_time.secs - self.__start_time.secs
         relative_n_secs = current_time.nsecs - self.__start_time.nsecs
@@ -66,120 +70,85 @@ class Topic:
         self.time.append(relative_time)
     def off(self):
         self.sub.unregister()
+    def handle(self, msg):
+        pass
 
 class Speed(Topic):
     def __init__(self, topic):
+        super(Speed, self).__init__(topic, Twist)
         self.linear = list()
         self.angular = list()
-        self.dataType = Twist
-        self.initCommon(topic)
     def handle(self, msg):
-        self.appendRelativeTime()
+        self.append_relative_time()
         print("received: {0}, {1}, {2}".format(self.TOPIC, self.time[-1], msg.linear.x))
         print("received: {0}, {1}, {2}".format(self.TOPIC, self.time[-1], msg.angular.z))
         self.linear.append(msg.linear.x)
         self.angular.append(msg.angular.z)
-    def createPlot(self, speedType):
-        if speedType is "linear":
-            plt.plot(self.time, self.linear)
-            plt.title('Linear speed')
-            if len(self.time) is 0:
-                plt.axis([0, 0.01, -0.25, 0.25])
-            else:
-                plt.axis([self.time[0], self.time[-1], -0.25, 0.25])
-        elif speedType is "angular":
-            plt.plot(self.time, self.angular)
-            plt.title('Angular speed')
-            if len(self.time) is 0:
-                plt.axis([0, 0.01, -0.25, 0.25])
-            else:
-                plt.axis([self.time[0], self.time[-1] + 0.01, -1, 1])
-        plt.grid()
 
 class EncoderSpeed(Topic):
     def __init__(self, topic):
+        super(EncoderSpeed, self).__init__(topic, Float32)
         self.data = list()
-        self.dataType = Float32
-        self.initCommon(topic)
     def handle(self, msg):
-        self.appendRelativeTime()
+        self.append_relative_time()
         print("received: {0}, {1}, {2}".format(self.TOPIC, self.time[-1], msg.data))
         self.data.append(msg.data)
-    def createPlot(self):
-        plt.plot(self.time, self.data)
-        plt.title('Encoder speed')
-        plt.grid()
-
 
 class MotorSpeed(Topic):
     def __init__(self, topic):
+        super(MotorSpeed, self).__init__(topic, Int32)
         self.data = list()
-        self.dataType = Int32
-        self.initCommon(topic)
     def handle(self, msg):
-        self.appendRelativeTime()
+        self.append_relative_time()
         print("received: {0}, {1}, {2}".format(self.TOPIC, self.time[-1], msg.data))
         self.data.append(msg.data)
-    def createPlot(self):
-        plt.plot(self.time, self.data)
-        plt.title('Motor duty cycle')
-        plt.grid()
-
 
 class Position(Topic):
     def __init__(self, topic):
-        self.dataType = Point32
+        super(Position, self).__init__(topic, Point32)
         self.x = list()
         self.y = list()
         self.z = list()
-        self.initCommon(topic)
     def handle(self, msg):
-        self.appendRelativeTime()
-        print("received: {0}, {1}, {2}, {3}".format(self.TOPIC, self.time[-1],
-                                                    msg.x, msg.y, msg.z))
+        self.append_relative_time()
+        print("received: {0}, {1}, {2}, {3}, {4}".format(self.TOPIC, self.time[-1],
+                                                         msg.x, msg.y, msg.z))
         self.x.append(msg.x)
         self.y.append(msg.y)
         self.z.append(msg.z)
-    def createPlot(self, dataType):
-        if dataType == "x":
-            plt.plot(self.time, self.x)
-            plt.ylabel('x, meters')
-            plt.title('Position x')
-        elif dataType == "y":
-            plt.plot(self.time, self.y)
-            plt.ylabel('y, meters')
-            plt.title('Position y')
-        elif dataType == "z":
-            plt.plot(self.time, self.z)
-            plt.title('Direction')
-        plt.xlabel('t, sec')
-        plt.grid()
 
 
 class Test():
+    def __init__(self):
+        self.topics = dict()
+        self.file_name = str()
     def do(self, mode):
         if PLOT_ONLY is True:
-            if ENABLE_TEST is True:
-                self.create_desired_plot()
-            self.read_data_and_create_plot("test_pid_result_1.json")
+            self.read_data_and_create_plot(JSON_FILE_NAME)
         else:
-            self.sensors = list()
-            self.fileName = ""
             self.set_mode_and_show_info(mode)
             self.gather_data()
             self.write_data_to_file()
-            if ENABLE_TEST is True:
-                self.create_desired_plot()
             self.read_data_and_create_plot()
+        if ENABLE_TEST is True:
+            Test.create_desired_plot()
+        plt.show()
 
     def set_mode_and_show_info(self, mode):
-        print("Node have started. Sleep for short time...\nThe settings are:")
-        if ENABLE_TEST is True:
-            print("- test enabled")
-            print("- speed change interval: " + str(TIME_BEFORE_SPEED_CHANGE))
+        print("Node have started. The settings are:")
+        if PLOT_ONLY is True:
+            print("- script mode: only create plot.")
         else:
-            print("- gathering real data")
-            print("- time interval is" + str(DATA_GATHERING_TIME) + "seconds")
+            print("- script mode: data gathering and create plot;")
+            if ENABLE_TEST is True:
+                print("-- data gathering type: test enabled;")
+                print("--- desired linear speed: " + str(DESIRED_LINEAR_SPEEDS))
+                print("--- desired angular speed: " + str(DESIRED_ANGULAR_SPEEDS))
+                print("--- speed change interval: " + str(TIME_BEFORE_SPEED_CHANGE))
+            else:
+                print("-- data gathering type: real data gathering;")
+                print("--- time interval: " + str(DATA_GATHERING_TIME))
+            print("Sleep for short time...")
     def gather_data(self):
         # Preparation
         cmd = rospy.Publisher(TopicName.CMD, Twist, queue_size=10)
@@ -190,13 +159,13 @@ class Test():
         rate.sleep()
         # Gather data
         print("Data is gathering now...")
-        self.sensors = list()
-        self.sensors.append(Speed(TopicName.SPEED))
-        self.sensors.append(EncoderSpeed(TopicName.ENCODER_LEFT_SPEED))
-        self.sensors.append(EncoderSpeed(TopicName.ENCODER_RIGHT_SPEED))
-        self.sensors.append(MotorSpeed(TopicName.LEFT_MOTOR))
-        self.sensors.append(MotorSpeed(TopicName.RIGHT_MOTOR))
-        self.sensors.append(Position(TopicName.POSITION))
+        self.topics = dict()
+        self.topics[TopicName.SPEED] = Speed(TopicName.SPEED)
+        self.topics[TopicName.ENCODER_LEFT_SPEED] = EncoderSpeed(TopicName.ENCODER_LEFT_SPEED)
+        self.topics[TopicName.ENCODER_RIGHT_SPEED] = EncoderSpeed(TopicName.ENCODER_RIGHT_SPEED)
+        self.topics[TopicName.LEFT_MOTOR] = MotorSpeed(TopicName.LEFT_MOTOR)
+        self.topics[TopicName.RIGHT_MOTOR] = MotorSpeed(TopicName.RIGHT_MOTOR)
+        self.topics[TopicName.POSITION] = Position(TopicName.POSITION)
         if ENABLE_TEST is True:
             for i in range(0, len(DESIRED_LINEAR_SPEEDS)):
                 msg.linear.x = DESIRED_LINEAR_SPEEDS[i]
@@ -207,64 +176,64 @@ class Test():
         else:
             rospy.sleep(DATA_GATHERING_TIME)
         # Off subscribers
-        for sensor in self.sensors:
-            sensor.off()
+        for key in self.topics:
+            self.topics[key].off()
 
     def write_data_to_file(self):
         counter = 0
         calculate_name = lambda i: FILE_NAME_BASE + str(i) + FILE_NAME_END
         while os.path.isfile(calculate_name(counter)) is not False:
             counter += 1
-        self.fileName = calculate_name(counter)
+        self.file_name = calculate_name(counter)
 
-        write_file = open(self.fileName, "w")
+        write_file = open(self.file_name, "w")
         new_dump = dict()
 
-        data = dict([(Json.DATA, self.sensors[0].linear),
-                     (Json.TIME, self.sensors[0].time)])
+        data = dict([(Json.DATA, self.topics[TopicName.SPEED].linear),
+                     (Json.TIME, self.topics[TopicName.SPEED].time)])
         new_dump[Json.LINEAR_SPEED] = data
 
-        data = dict([(Json.DATA, self.sensors[1].data),
-                     (Json.TIME, self.sensors[1].time)])
+        data = dict([(Json.DATA, self.topics[TopicName.ENCODER_LEFT_SPEED].data),
+                     (Json.TIME, self.topics[TopicName.ENCODER_LEFT_SPEED].time)])
         new_dump[Json.LEFT_ENCODER_SPEED] = data
 
-        data = dict([(Json.DATA, self.sensors[2].data),
-                     (Json.TIME, self.sensors[2].time)])
+        data = dict([(Json.DATA, self.topics[TopicName.LEFT_MOTOR].data),
+                     (Json.TIME, self.topics[TopicName.LEFT_MOTOR].time)])
         new_dump[Json.LEFT_MOTOR_SPEED] = data
 
-        data = dict([(Json.DATA, self.sensors[0].angular),
-                     (Json.TIME, self.sensors[0].time)])
+        data = dict([(Json.DATA, self.topics[TopicName.SPEED].angular),
+                     (Json.TIME, self.topics[TopicName.SPEED].time)])
         new_dump[Json.ANGULAR_SPEED] = data
 
-        data = dict([(Json.DATA, self.sensors[3].data),
-                     (Json.TIME, self.sensors[3].time)])
+        data = dict([(Json.DATA, self.topics[TopicName.ENCODER_RIGHT_SPEED].data),
+                     (Json.TIME, self.topics[TopicName.ENCODER_RIGHT_SPEED].time)])
         new_dump[Json.RIGHT_ENCODER_SPEED] = data
 
-        data = dict([(Json.DATA, self.sensors[4].data),
-                     (Json.TIME, self.sensors[4].time)])
+        data = dict([(Json.DATA, self.topics[TopicName.RIGHT_MOTOR].data),
+                     (Json.TIME, self.topics[TopicName.RIGHT_MOTOR].time)])
         new_dump[Json.RIGHT_MOTOR_SPEED] = data
 
-        data = dict([(Json.DATA, self.sensors[5].x),
-                     (Json.TIME, self.sensors[5].time)])
+        data = dict([(Json.DATA, self.topics[TopicName.POSITION].x),
+                     (Json.TIME, self.topics[TopicName.POSITION].time)])
         new_dump[Json.POSITION_X] = data
 
-        data = dict([(Json.DATA, self.sensors[5].y),
-                     (Json.TIME, self.sensors[5].time)])
+        data = dict([(Json.DATA, self.topics[TopicName.POSITION].y),
+                     (Json.TIME, self.topics[TopicName.POSITION].time)])
         new_dump[Json.POSITION_Y] = data
 
-        data = dict([(Json.DATA, self.sensors[5].z),
-                     (Json.TIME, self.sensors[5].time)])
+        data = dict([(Json.DATA, self.topics[TopicName.POSITION].z),
+                     (Json.TIME, self.topics[TopicName.POSITION].time)])
         new_dump[Json.POSITION_DIR] = data
 
         json.dump(new_dump, write_file, indent=2)
         print("File with name has just been created:" + \
-               os.getcwd() + "/" + self.fileName + ".")
+               os.getcwd() + "/" + self.file_name + ".")
         print("Finish.")
 
-    def read_data_and_create_plot(self, fileName=None):
-        if fileName is not None:
-            self.fileName = fileName
-        read_file = open(self.fileName, "r")
+    def read_data_and_create_plot(self, file_name=None):
+        if file_name is not None:
+            self.file_name = file_name
+        read_file = open(self.file_name, "r")
         data = json.load(read_file)
 
         name = list([Json.LINEAR_SPEED, Json.LEFT_ENCODER_SPEED,
@@ -277,32 +246,32 @@ class Test():
             plt.plot(data[name[i]][Json.TIME], data[name[i]][Json.DATA], 'b')
             plt.grid()
             plt.title(name[i])
-        plt.show()
 
-    def create_desired_plot(self):
-        referenceTime = list([0, 0])
+    @staticmethod
+    def create_desired_plot():
+        reference_time = list([0, 0])
         for i in range(1, DESIRED_SPEED_LENGTH):
-            referenceTime.append(i * TIME_BEFORE_SPEED_CHANGE)
-            referenceTime.append(i * TIME_BEFORE_SPEED_CHANGE)
-        referenceTime.append(TIME_BEFORE_SPEED_CHANGE * DESIRED_SPEED_LENGTH)
+            reference_time.append(i * TIME_BEFORE_SPEED_CHANGE)
+            reference_time.append(i * TIME_BEFORE_SPEED_CHANGE)
+        reference_time.append(TIME_BEFORE_SPEED_CHANGE * DESIRED_SPEED_LENGTH)
 
         plt.subplot(3, 3, 1)
-        desiredSpeeds = DESIRED_LINEAR_SPEEDS
-        referenceSpeed = list([0, desiredSpeeds[0]])
+        desired_speeds = DESIRED_LINEAR_SPEEDS
+        reference_speed = list([0, desired_speeds[0]])
         for i in range(1, DESIRED_SPEED_LENGTH):
-            referenceSpeed.append(desiredSpeeds[i - 1])
-            referenceSpeed.append(desiredSpeeds[i])
-        referenceSpeed.append(desiredSpeeds[-1])
-        plt.plot(referenceTime, referenceSpeed, 'r')
+            reference_speed.append(desired_speeds[i - 1])
+            reference_speed.append(desired_speeds[i])
+        reference_speed.append(desired_speeds[-1])
+        plt.plot(reference_time, reference_speed, 'r')
 
         plt.subplot(3, 3, 4)
-        desiredSpeeds = DESIRED_ANGULAR_SPEEDS
-        referenceSpeed = list([0, desiredSpeeds[0]])
+        desired_speeds = DESIRED_ANGULAR_SPEEDS
+        reference_speed = list([0, desired_speeds[0]])
         for i in range(1, DESIRED_SPEED_LENGTH):
-            referenceSpeed.append(desiredSpeeds[i - 1])
-            referenceSpeed.append(desiredSpeeds[i])
-        referenceSpeed.append(desiredSpeeds[-1])
-        plt.plot(referenceTime, referenceSpeed, 'r')
+            reference_speed.append(desired_speeds[i - 1])
+            reference_speed.append(desired_speeds[i])
+        reference_speed.append(desired_speeds[-1])
+        plt.plot(reference_time, reference_speed, 'r')
 
 try:
     test = Test()
