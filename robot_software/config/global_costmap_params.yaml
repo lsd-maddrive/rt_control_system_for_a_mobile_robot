@@ -6,14 +6,14 @@ global_costmap:
   transform_tolerance: 0.5
 
   # Rate parameters
-  update_frequency: 5.0
-  publish_frequency: 5.0
+  update_frequency: 2.5
+  publish_frequency: 2.5
 
   # Map management parameters
   static_map: false  
   rolling_window: true
 
   # Other parameters
-  width: 8
-  height: 8
+  width: 20
+  height: 20
   resolution: 0.05
