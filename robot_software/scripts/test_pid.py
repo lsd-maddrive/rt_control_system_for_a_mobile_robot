@@ -4,16 +4,17 @@ import json
 import os
 import matplotlib.pyplot as plt
 import rospy
+import argparse
 from std_msgs.msg import Float32, Int32
 from geometry_msgs.msg import Twist, Vector3, Point32
 
 # Choose mode
 # 1. Test mode
-PLOT_ONLY = False
+PLOT_ONLY = bool()
 # 1.1. Plot only params
-JSON_FILE_NAME = "test_pid_result_1.json"
+JSON_FILE_NAME = str()
 # 1.2. Gathering type
-ENABLE_TEST = False
+ENABLE_TEST = True
 # 1.2.1. Real gathering params
 DATA_GATHERING_TIME = 30
 # 1.2.2. Test gathering params
@@ -239,13 +240,19 @@ class Test():
         name = list([Json.LINEAR_SPEED, Json.LEFT_ENCODER_SPEED,
                      Json.LEFT_MOTOR_SPEED, Json.ANGULAR_SPEED,
                      Json.RIGHT_ENCODER_SPEED, Json.RIGHT_MOTOR_SPEED,
-                     Json.POSITION_X, Json.POSITION_Y,
-                     Json.POSITION_DIR])
+                     Json.POSITION_X, Json.POSITION_Y, Json.POSITION_DIR])
+        ylabel_name = list(["speed, m/sec", "speed, impulses/sec",
+                            "duty cycle, %", "speed, rad/sec",
+                            "speed, impulses/sec", "duty cycle, %",
+                            "position x, meters", "position y, meters", 
+                            "position z, rad"])
         for i in range(0, len(name)):
             plt.subplot(3, 3, i + 1)
             plt.plot(data[name[i]][Json.TIME], data[name[i]][Json.DATA], 'b')
             plt.grid()
             plt.title(name[i])
+            plt.ylabel(ylabel_name[i])
+            plt.xlabel("time, sec")
 
     @staticmethod
     def create_desired_plot():
@@ -273,8 +280,25 @@ class Test():
         reference_speed.append(desired_speeds[-1])
         plt.plot(reference_time, reference_speed, 'r')
 
-try:
-    test = Test()
-    test.do("mode")
-except (rospy.ROSInterruptException, KeyboardInterrupt):
-    rospy.logerr('Exception catched')
+
+if __name__=="__main__":
+    parser = argparse.ArgumentParser(description='Test cpu load tool')
+    parser.add_argument('--jdir',
+                        type=str,
+                        help='Default JSON dir',
+                        default=str())
+    parser.add_argument('--mode', 
+                        help='Mode: [only_plot, gather_and_plot]',
+                        default='only_plot')
+    args = vars(parser.parse_args())
+
+    try:
+        JSON_FILE_NAME = args['jdir']
+        if args['mode'] == "gather_and_plot":
+            PLOT_ONLY = False
+        else:
+            PLOT_ONLY = True
+        test = Test()
+        test.do("mode")
+    except (rospy.ROSInterruptException, KeyboardInterrupt):
+        rospy.logerr('Exception catched')
