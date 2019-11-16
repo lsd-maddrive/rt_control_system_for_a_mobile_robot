@@ -35,7 +35,7 @@ def fixBorders(speed):
 
 if __name__=="__main__":
     rospy.init_node('teleop_twist_keyboard')
-    pub = rospy.Publisher('cmdTopic', Twist, queue_size = 10)
+    pub = rospy.Publisher('/cmd_vel', Twist, queue_size = 10)
     settings = termios.tcgetattr(sys.stdin)
     linearSpeed = 0
     angularSpeed = 0
