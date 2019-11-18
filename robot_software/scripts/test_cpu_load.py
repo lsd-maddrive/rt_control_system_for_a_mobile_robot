@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding: utf8
 import rospy
 import json
 import sys
@@ -34,6 +35,7 @@ DESIRED_PROCESS_NAMES = list(['rosserial_python'])
 TIME_FOR_SLEEP = 1
 TIME_AMOUNT = 15
 KERNEL_AMOUNT = 4
+LANGUAGE = 'rus'
 
 
 rospy.init_node(THIS_NODE_NAME)
@@ -129,9 +131,22 @@ def create_plot(fileName):
         else:
             print("- {} was founded in json.".format(key))
             plt.plot(time, dump[key][Json.CPU_LOAD_FIELD])
-    plt.title('cpu load')
-    plt.xlabel("{}, sec".format(Json.TIME))
-    plt.ylabel("{}%".format('Cpu load'))
+
+    TITLE = ''
+    X_LABEL = ''
+    Y_LABEL = ''
+    if LANGUAGE is 'rus':
+        TITLE = u'загрузка процессора'
+        X_LABEL = u'время, сек'
+        Y_LABEL = u'загрузка процессора, %'
+    if LANGUAGE is 'eng':
+        TITLE = 'cpu load'
+        X_LABEL = 'time, sec'
+        Y_LABEL = 'cpu load, %'
+
+    plt.title(TITLE)
+    plt.xlabel(X_LABEL)
+    plt.ylabel(Y_LABEL)
     plt.grid()
     plt.show()
 
@@ -142,13 +157,13 @@ if __name__=="__main__":
                         help='Default JSON dir',
                         default=str())
     parser.add_argument('--mode', 
-                        help='Mode: [only_plot, gather_and_plot]',
+                        help='Mode: [only_plot, collect_and_plot]',
                         default='only_plot')
     args = vars(parser.parse_args())
 
     try:
         filePath = args['jdir']
-        if args['mode'] == "gather_and_plot":
+        if args['mode'] == "collect_and_plot":
             data_collector = DataCollector()
             filePath = data_collector.process_collection()
         create_plot(filePath)

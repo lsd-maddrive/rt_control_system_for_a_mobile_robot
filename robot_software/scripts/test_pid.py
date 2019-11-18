@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding: utf8
 """ This script starts pid test and/or create plots for result."""
 import json
 import os
@@ -24,9 +25,14 @@ DESIRED_ANGULAR_SPEEDS = [0.00, -0.00, +0.00, +0.50, -0.50, +0.00]
 DESIRED_SPEED_LENGTH = len(DESIRED_LINEAR_SPEEDS)
 # 2. Other settings
 REAL_TIME_PLOTTING = False
+LANGUAGE = 'rus'
 
 
 # Constants
+THIS_NODE_NAME = 'test_pid_node'
+FILE_NAME_BASE = "test_pid_result_"
+FILE_NAME_END = ".json"
+
 class TopicName:
     CMD = "/cmd_vel"
     SPEED = "/speedTopic"
@@ -35,13 +41,6 @@ class TopicName:
     LEFT_MOTOR = "/motorLeftTopic"
     RIGHT_MOTOR = "/motorRightTopic"
     POSITION = "/positionTopic"
-
-THIS_NODE_NAME = 'test_pid_node'
-FILE_NAME_BASE = "test_pid_result_"
-FILE_NAME_END = ".json"
-
-rospy.init_node(THIS_NODE_NAME)
-
 
 class Json:
     LINEAR_SPEED = "linear speed"
@@ -54,8 +53,67 @@ class Json:
     POSITION_Y = "position y"
     POSITION_DIR = "position dir"
 
+    ALL = [LINEAR_SPEED,  LEFT_ENCODER_SPEED,  LEFT_MOTOR_SPEED,
+           ANGULAR_SPEED, RIGHT_ENCODER_SPEED, RIGHT_MOTOR_SPEED,
+           POSITION_X,    POSITION_Y,          POSITION_DIR]
+
     DATA = "data"
     TIME = "time"
+
+PLOT_TITLE = dict()
+PLOT_LABEL = dict()
+PLOT_TIME = str()
+for obj_name in Json.ALL:
+    PLOT_TITLE[obj_name] = str()
+    PLOT_LABEL[obj_name] = str()
+if LANGUAGE is 'rus':
+    PLOT_TIME = u'время, сек'
+
+    PLOT_LABEL[Json.LINEAR_SPEED] = u'скорость'
+    PLOT_LABEL[Json.ANGULAR_SPEED] = u'скорость, рад/с'
+    PLOT_LABEL[Json.LEFT_ENCODER_SPEED] = u'скорость, имп./сек'
+    PLOT_LABEL[Json.RIGHT_ENCODER_SPEED] = u'скорость, имп./сек'
+    PLOT_LABEL[Json.LEFT_MOTOR_SPEED] = u'скважность ШИМ, %'
+    PLOT_LABEL[Json.RIGHT_MOTOR_SPEED] = u'скажность ШИМ, %'
+    PLOT_LABEL[Json.POSITION_X] = u'положение, м'
+    PLOT_LABEL[Json.POSITION_Y] = u'положение, м'
+    PLOT_LABEL[Json.POSITION_DIR] = u'направление, рад'
+
+    PLOT_TITLE[Json.LINEAR_SPEED] = u'линейная скорость'
+    PLOT_TITLE[Json.ANGULAR_SPEED] = u'угловая скорость'
+    PLOT_TITLE[Json.LEFT_ENCODER_SPEED] = u'левый энкодер'
+    PLOT_TITLE[Json.RIGHT_ENCODER_SPEED] = u'правый энкодер'
+    PLOT_TITLE[Json.LEFT_MOTOR_SPEED] = u'левый двигатель'
+    PLOT_TITLE[Json.RIGHT_MOTOR_SPEED] = u'правый двигатель'
+    PLOT_TITLE[Json.POSITION_X] = u'положение робота'
+    PLOT_TITLE[Json.POSITION_Y] = u'положение робота'
+    PLOT_TITLE[Json.POSITION_DIR] = u'направление робота'
+elif LANGUAGE is 'eng':
+    PLOT_TIME = 'time, sec'
+
+    PLOT_LABEL[Json.LINEAR_SPEED] = 'speed, m/s'
+    PLOT_LABEL[Json.ANGULAR_SPEED] = 'speed, rad/sec'
+    PLOT_LABEL[Json.LEFT_ENCODER_SPEED] = 'speed, imp./sec'
+    PLOT_LABEL[Json.RIGHT_ENCODER_SPEED] = 'speed, imp./sec'
+    PLOT_LABEL[Json.LEFT_MOTOR_SPEED] = 'duty cycle, %'
+    PLOT_LABEL[Json.RIGHT_MOTOR_SPEED] = 'duty cycle, %'
+    PLOT_LABEL[Json.POSITION_X] = 'position, m'
+    PLOT_LABEL[Json.POSITION_Y] = 'position, m'
+    PLOT_LABEL[Json.POSITION_DIR] = 'direction, rad'
+
+    PLOT_TITLE[Json.LINEAR_SPEED] = 'linear speed'
+    PLOT_TITLE[Json.ANGULAR_SPEED] = 'angular speed'
+    PLOT_TITLE[Json.LEFT_ENCODER_SPEED] = 'left encoder'
+    PLOT_TITLE[Json.RIGHT_ENCODER_SPEED] = 'right encoder'
+    PLOT_TITLE[Json.LEFT_MOTOR_SPEED] = 'left motor'
+    PLOT_TITLE[Json.RIGHT_MOTOR_SPEED] = 'right motor'
+    PLOT_TITLE[Json.POSITION_X] = 'robot position x'
+    PLOT_TITLE[Json.POSITION_Y] = 'robot position y'
+    PLOT_TITLE[Json.POSITION_DIR] = 'robot direction'
+
+
+rospy.init_node(THIS_NODE_NAME)
+
 
 class Topic(object):
     def __init__(self, topic, data_type):
@@ -237,22 +295,14 @@ class Test():
         read_file = open(self.file_name, "r")
         data = json.load(read_file)
 
-        name = list([Json.LINEAR_SPEED, Json.LEFT_ENCODER_SPEED,
-                     Json.LEFT_MOTOR_SPEED, Json.ANGULAR_SPEED,
-                     Json.RIGHT_ENCODER_SPEED, Json.RIGHT_MOTOR_SPEED,
-                     Json.POSITION_X, Json.POSITION_Y, Json.POSITION_DIR])
-        ylabel_name = list(["speed, m/sec", "speed, impulses/sec",
-                            "duty cycle, %", "speed, rad/sec",
-                            "speed, impulses/sec", "duty cycle, %",
-                            "position x, meters", "position y, meters", 
-                            "position z, rad"])
-        for i in range(0, len(name)):
+        names = Json.ALL
+        for i in range(0, len(names)):
             plt.subplot(3, 3, i + 1)
-            plt.plot(data[name[i]][Json.TIME], data[name[i]][Json.DATA], 'b')
+            plt.plot(data[names[i]][Json.TIME], data[names[i]][Json.DATA], 'b')
             plt.grid()
-            plt.title(name[i])
-            plt.ylabel(ylabel_name[i])
-            plt.xlabel("time, sec")
+            plt.title(PLOT_TITLE[names[i]])
+            plt.ylabel(PLOT_LABEL[names[i]])
+            plt.xlabel(PLOT_TIME)
 
     @staticmethod
     def create_desired_plot():
