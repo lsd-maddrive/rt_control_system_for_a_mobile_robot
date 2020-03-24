@@ -1,3 +1,3 @@
 #!/bin/bash
-ssh ubuntu@ubuntu-desktop.local
+ssh ubuntu@ubuntu-desktop.local -X
 
