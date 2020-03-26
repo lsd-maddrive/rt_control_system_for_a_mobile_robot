@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Start localization simulation on PC -->
 <launch>
-  <!-- You can enable full stack or only amcl -->
   <arg name="enable_move_base" default="true" doc="[true, false]"/>
+  <arg name="map_name" default="world" doc="[world]"/>
 
   <!-- 1. Simulation settings -->
   <include file="$(find robot_software)/launch/simulation/simulation.launch"/>
@@ -13,7 +13,7 @@
     <include file="$(find robot_software)/launch/navigation_stack/localization_stack.launch"/>
   </group>
   <group unless="$(arg enable_move_base)">
-    <node name="map_server" pkg="map_server" type="map_server" args="$(find robot_software)/maps/map.yaml" />
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find robot_software)/maps/$(arg map_name).yaml" />
     <include file="$(find robot_software)/launch/navigation_stack/amcl.launch">
       <arg name="initial_pose_x" default="0.0"/>
       <arg name="initial_pose_y" default="0.0"/>

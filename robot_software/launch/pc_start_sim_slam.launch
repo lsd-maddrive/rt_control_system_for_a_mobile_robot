@@ -3,12 +3,14 @@
 <launch>
   <!-- You can enable full stack or only mapping algorithm -->
   <arg name="enable_move_base" default="true" doc="[true, false]"/>
-  <arg name="mapping_algorithm" default="gmapping" doc="[gmapping]"/>
+  <arg name="mapping_algorithm" default="gmapping" doc="[gmapping, hector_mapping]"/>
   <arg name="gz_client" default="false"/>
+  <arg name="gz_world" default="world.world"/>
 
   <!-- 1. Simulation settings -->
   <include file="$(find robot_software)/launch/simulation/simulation.launch">
     <arg name="gz_client" value="$(arg gz_client)"/>
+    <arg name="gz_world" value="$(arg gz_world)"/>
   </include>
   <include file="$(find robot_software)/launch/rviz.launch"/>
 

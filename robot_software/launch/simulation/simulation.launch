@@ -8,10 +8,13 @@
   <arg name="y_pos" default="0.0"/>
   <arg name="z_pos" default="0.0"/>
   <arg name="gz_client" default="false"/>
+  <arg name="gz_world" default="world.world"/>
+
 
   <!-- 1. Start Gazebo with empty world -->
+  <env name="GAZEBO_MODEL_PATH" value="$(find wr8_description)/worlds:$(find world_creator)/models" />
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find robot_software)/worlds/world.world"/>
+    <arg name="world_name" value="$(find robot_software)/worlds/$(arg gz_world)"/>
     <arg name="paused" value="false"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="gui" value="$(arg gz_client)"/>
@@ -26,6 +29,6 @@
   <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf"  args="-urdf -model turtlebot3_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
 
   <!-- 4. Robot state publisher -->
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen"/>	
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" />
 
 </launch>
