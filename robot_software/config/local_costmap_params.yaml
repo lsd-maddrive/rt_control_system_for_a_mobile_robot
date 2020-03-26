@@ -1,7 +1,7 @@
 # Read about parameters here http://wiki.ros.org/costmap_2d?distro=melodic
 local_costmap:
   # Coordinate frame and tf parameters
-  global_frame: odom
+  global_frame: map
   robot_base_frame: base_footprint
   transform_tolerance: 0.5 
 
