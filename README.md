@@ -40,12 +40,14 @@ cd src/
 
 `. ./init_env_vars.launch`
 
-2. Run `rpi_start_slam.launch` or `rpi_start_localization.launch` on RPI
+2. Run `real_slam.launch` or `real_localization.launch` on RPI
 3. Run `rviz.launch` on desktop
 
 ### How to start simulation
 
-1. Run `pc_start_sim_slam.launch` or `pc_start_sim_localization.launch` on PC
+1. Run on first terminal session: `gz_server`
+2. Run on second terminal session: `gz_slam.launch` or `gz_localization.launch`
+
 
 ### Troubleshooting
 
