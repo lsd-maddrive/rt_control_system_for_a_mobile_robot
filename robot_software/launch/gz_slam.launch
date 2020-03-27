@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Start SLAM simulation on PC -->
 <launch>
-  <!-- You can enable full stack or only mapping algorithm -->
   <arg name="enable_move_base" default="true" doc="[true, false]"/>
   <arg name="mapping_algorithm" default="gmapping" doc="[gmapping, hector_mapping]"/>
-  <arg name="gz_client" default="false"/>
-  <arg name="gz_world" default="world.world"/>
+  <arg name="initial_pose_x"    default="0.0"/>
+  <arg name="initial_pose_y"    default="0.0"/>
+  <arg name="initial_pose_yaw"  default="0.0"/>
 
-  <!-- 1. Simulation settings -->
-  <include file="$(find robot_software)/launch/simulation/simulation.launch">
-    <arg name="gz_client" value="$(arg gz_client)"/>
-    <arg name="gz_world" value="$(arg gz_world)"/>
+  <!-- 1. Spawn model -->
+  <include file="$(find robot_software)/launch/simulation/gz_spawn_model.launch">
   </include>
-  <include file="$(find robot_software)/launch/rviz.launch"/>
 
   <!-- 2. Navigation settings -->
   <group if="$(arg enable_move_base)">
@@ -21,7 +17,7 @@
     </include>
   </group>
   <group unless="$(arg enable_move_base)">
-    <include file="$(find robot_software)/launch/navigation_stack/$(arg mapping_algorithm).launch"/>
     <include file="$(find robot_software)/launch/teleop_gui.launch"/>
+    <include file="$(find robot_software)/launch/navigation_stack/$(arg mapping_algorithm).launch"/>
   </group>
 </launch>

@@ -3,7 +3,7 @@
   <arg name="scan_topic"  default="scan" />
   <arg name="base_frame"  default="base_link"/>
   <arg name="odom_frame"  default="odom"/>
-  <arg name="map_resol"  default="0.1"/>
+  <arg name="map_resol"  default="0.05"/>
 
   <node pkg="hector_mapping" type="hector_mapping" name="hector_mapping" output="screen">
     <param name="pub_map_odom_transform" value="true"/>
