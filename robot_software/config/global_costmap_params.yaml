@@ -10,8 +10,8 @@ global_costmap:
   publish_frequency: 2.5
 
   # Map management parameters
-  static_map: true
-  rolling_window: false
+  static_map: false
+  rolling_window: true
 
   # Other parameters
   width: 20
