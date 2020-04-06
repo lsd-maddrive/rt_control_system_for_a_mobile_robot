@@ -6,7 +6,6 @@ def delete_model(model_name):
     proxy = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
     proxy(model_name)
 
-
 if __name__=="__main__":
     try:
         rospy.init_node('delete_model_node')

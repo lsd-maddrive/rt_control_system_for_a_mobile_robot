@@ -10,4 +10,5 @@ sudo apt install ros-$ROS_DISTRO-gmapping \
 git -C slam_karto/sparse_bundle_adjustment pull || git clone https://github.com/ros-perception/sparse_bundle_adjustment slam_karto/sparse_bundle_adjustment
 git -C slam_karto/slam_karto pull               || git clone https://github.com/ros-perception/slam_karto slam_karto/slam_karto
 git -C slam_karto/open_karto pull               || git clone https://github.com/ros-perception/open_karto slam_karto/open_karto
+git -C timed_roslaunch pull                     || git clone https://github.com/MoriKen254/timed_roslaunch.git -b melodic-devel
 

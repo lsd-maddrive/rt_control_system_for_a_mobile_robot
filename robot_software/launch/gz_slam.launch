@@ -1,23 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
-  <arg name="enable_move_base" default="true" doc="[true, false]"/>
-  <arg name="mapping_algorithm" default="gmapping" doc="[gmapping, hector_mapping]"/>
-  <arg name="initial_pose_x"    default="0.0"/>
-  <arg name="initial_pose_y"    default="0.0"/>
-  <arg name="initial_pose_yaw"  default="0.0"/>
+  <arg name="mapping_algorithm"           default="gmapping"  doc="[gmapping, hector_mapping, slam_karto]"/>
+  <arg name="spawn_x"                     default="0.0"/>
+  <arg name="spawn_y"                     default="0.0"/>
+  <arg name="spawn_yaw"                   default="0.0"/>
+  <arg name="spawn_start_delay"           default="0.1"/>
 
-  <!-- 1. Spawn model -->
-  <include file="$(find robot_software)/launch/simulation/gz_spawn_model.launch">
+  <!-- 1. Delete previous model -->
+  <node pkg="robot_software" type="gz_delete_model.py" name="gz_delete_model" />
+
+  <!-- 2. Spawn new model -->
+  <include file="$(find timed_roslaunch)/launch/timed_roslaunch.launch">
+    <arg name="time" value="$(arg spawn_start_delay)" />
+    <arg name="pkg" value="robot_software" />
+    <arg name="file" value="gz_spawn_model.launch" />
+    <arg name="value" value="spawn_x:=$(arg spawn_x) spawn_y:=$(arg spawn_y) spawn_yaw:=$(arg spawn_yaw)" />
+    <arg name="node_name" value="timed_gz_spawn" />
   </include>
 
-  <!-- 2. Navigation settings -->
-  <group if="$(arg enable_move_base)">
-    <include file="$(find robot_software)/launch/navigation_stack/slam_stack.launch">
-      <arg name="mapping_algorithm" value="$(arg mapping_algorithm)"/>
-    </include>
-  </group>
-  <group unless="$(arg enable_move_base)">
-    <include file="$(find robot_software)/launch/teleop_gui.launch"/>
-    <include file="$(find robot_software)/launch/navigation_stack/$(arg mapping_algorithm).launch"/>
-  </group>
+  <!-- 3. Run rviz -->
+  <include file="$(find robot_software)/launch/rviz.launch"/> 
+
+  <!-- 4. Run Navigation settings -->
+  <include file="$(find timed_roslaunch)/launch/timed_roslaunch.launch">
+    <arg name="time" value="$(arg spawn_start_delay)" />
+    <arg name="pkg" value="robot_software" />
+    <arg name="file" value="slam_stack.launch" />
+    <arg name="value" value="mapping_algorithm:=$(arg mapping_algorithm)" />
+    <arg name="node_name" value="timed_gz_slam" />
+  </include>
+
 </launch>

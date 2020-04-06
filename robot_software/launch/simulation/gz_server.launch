@@ -18,6 +18,7 @@
   </include>
 
   <!-- 2. Set parameters -->
+  <param name="model" value="$(arg model)"/>
   <param name="robot_description" command="$(find xacro)/xacro $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
 
   <!-- 3. Robot state publisher -->
