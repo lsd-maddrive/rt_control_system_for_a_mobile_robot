@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding: utf8
+from __future__ import print_function
 import rospy
 import json
 import sys
@@ -33,59 +34,72 @@ class Config(object):
     LANGUAGE = 15
     TIME_AMOUNT = 15
     TIME_FOR_SLEEP = 15
-    DESIRED_PROCESS_NAMES = list(['rosserial_python', 'gzserver', 'move_base', 'slam_gmapping', 'hector_mapping'])
+    DESIRED_PROCESS_NAMES = list(['rosserial_python', 'gzserver', 'move_base',
+                                  'slam_gmapping', 'hector_mapping',
+                                  'slam_karto'])
     KERNEL_AMOUNT = 4
 
 class DataCollector:
     def __init__(self):
+        """Init of attributes that store main data"""
         self.pids = dict()
         self.time = list()
         self.total_cpu_load = list()
 
     def process_collection(self):
+        """Init pids, collect data and write them to a file"""
         self.__init_pids()
         self.__collect_data()
         return self.__write_to_new_file()
 
     def __init_pids(self):
-        self.pids = dict()
-        print("User chose following process monitoring:")
-        for desired_pid_name in Config.DESIRED_PROCESS_NAMES:
-            f = os.popen('pgrep -d, -f ' + desired_pid_name)
-            new_pids_numbers = f.read().split(',')
-            if len(new_pids_numbers) > 1:
-                new_pid_number = int(new_pids_numbers[0])
-                pid = psutil.Process(new_pid_number)
-                pid.cpu_percent()
-                data = dict([ ('pid_number', new_pid_number), ('data', list()), ('obj', pid) ])
-                self.pids[desired_pid_name] = data
-                print("- process {} with possible pids {}".format(desired_pid_name, new_pids_numbers))
+        print("The following processes do not exist:")
+        for proc_name in Config.DESIRED_PROCESS_NAMES:
+            f = os.popen('pgrep -d, -f ' + proc_name)
+            pids_numbers = [int(i) for i in f.read().split(',')]
+            if len(pids_numbers) > 1:
+                pids = list()
+                for pid_num in pids_numbers:
+                    pids.append(psutil.Process(int(pid_num)))
+                    pids[-1].cpu_percent()
+
+                data = dict([ ('pids_numbers', pids_numbers), ('data', list()), ('obj', pids) ])
+                self.pids[proc_name] = data
             else:
-                print("- process {} does not exist".format(desired_pid_name))
-        print("Result process and their pid which exist:")
+                print("- {}".format(proc_name))
+
+        print("It start to monitor the following processes:")
         for key in self.pids:
-            print("- process {} with pid {}".format(key, self.pids[key]['pid_number']))
+            print("- {} with pid {}".format(key, self.pids[key]['pids_numbers']))
         rospy.sleep(Config.TIME_FOR_SLEEP)
 
     def __collect_data(self):
-        startTime = rospy.get_rostime()
-        for i in range(0, int(Config.TIME_AMOUNT / Config.TIME_FOR_SLEEP) + 1):
-            currentTime = rospy.get_rostime()
-            relativeSecs = currentTime.secs - startTime.secs
-            relativeNsecs = currentTime.nsecs - startTime.nsecs
-            relativeTime = relativeSecs + float(relativeNsecs)/1000000000
-            self.time.append(relativeTime)
-            print("\nTime: {}/{}".format(relativeTime, Config.TIME_AMOUNT))
+        start_time = rospy.get_rostime()
+        for counter in range(0, int(Config.TIME_AMOUNT / Config.TIME_FOR_SLEEP) + 1):
+            current_time = rospy.get_rostime()
+            relative_secs = current_time.secs - start_time.secs
+            relative_nsecs = current_time.nsecs - start_time.nsecs
+            relative_time = relative_secs + float(relative_nsecs)/1000000000
+            self.time.append(relative_time)
+            print("\nTime: {}/{}".format(relative_time, Config.TIME_AMOUNT))
 
             cpu_load = psutil.cpu_percent()
             self.total_cpu_load.append(cpu_load)
             print("Total: {}%".format(cpu_load))
 
-            for pid_name in self.pids:
-                pid = self.pids[pid_name]['obj']
-                pid_load = pid.cpu_percent() / Config.KERNEL_AMOUNT
-                self.pids[pid_name]['data'].append(pid_load)
-                print("- {} with pid {}: {}%".format(pid_name, self.pids[pid_name]['pid_number'], pid_load))
+            for proc_name in self.pids:
+                pids = self.pids[proc_name]['obj']
+                proc_load = 0
+                for pid in pids:
+                    try:
+                        proc_load += pid.cpu_percent()
+                    except:
+                        pids.remove(pid)
+                proc_load /= Config.KERNEL_AMOUNT
+
+                self.pids[proc_name]['data'].append(proc_load)
+                print("- {} with pid {}: {}%".format(proc_name, self.pids[proc_name]['pids_numbers'], proc_load))
+
             rospy.sleep(Config.TIME_FOR_SLEEP)
 
     def __write_to_new_file(self):
@@ -152,24 +166,29 @@ if __name__=="__main__":
         \rMonitor cpu load tool.
         \rTwo types of usage:
         \r1. Only plot data (default mode, you should choose the file):
-        \rrosrun robot_software test_cpu_load.py --jdir test_results/test1
+        \rrosrun robot_software test_cpu_load.py --jdir test_results/test.json
         \r2. Collect data and plot them (name of file will be generated):
         \rrosrun robot_software test_cpu_load.py --mode collect_and_plot 
         """,
         formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--jdir',
                         type=str,
-                        help='JSON directory')
-    parser.add_argument('--mode', 
+                        help='JSON directory',
+                        default=str())
+    parser.add_argument('--mode',
+                        type=str,
                         help='Mode: [only_plot, collect_and_plot]',
                         default='only_plot')
-    parser.add_argument('--language', 
+    parser.add_argument('--language',
+                        type=str,
                         help='Variants: [rus, eng]',
                         default='rus')
-    parser.add_argument('--time', 
+    parser.add_argument('--time',
+                        type=float,
                         help='Time of cpu usage monitoring',
                         default=15)
-    parser.add_argument('--interval', 
+    parser.add_argument('--interval',
+                        type=float,
                         help='Interval between cpu measurements',
                         default=1)
     args = vars(parser.parse_args())
