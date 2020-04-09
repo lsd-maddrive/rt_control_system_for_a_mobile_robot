@@ -8,6 +8,7 @@ import os
 import matplotlib.pyplot as plt
 import psutil
 import argparse
+import numpy as np
 
 
 # Constants
@@ -132,14 +133,16 @@ def create_plot(fileName):
 
     # Show data
     for key in dump:
-        print("{} is {}.".format(key, dump[key]))
+        if(key != Json.TIME):
+            print("- {} mean cpu load is {}.".format(key, np.mean(dump[key][Json.CPU_LOAD_FIELD])))
+        else:
+            print("- {} up to {}.".format(key, dump[key][-1]))
 
     # Create plot and show parsed data
     for key in dump:
         if key == Json.TIME:
             continue
         else:
-            print("- {} was founded in json.".format(key))
             plt.plot(time, dump[key][Json.CPU_LOAD_FIELD])
 
     TITLE = ''
@@ -158,6 +161,7 @@ def create_plot(fileName):
     plt.xlabel(X_LABEL)
     plt.ylabel(Y_LABEL)
     plt.grid()
+    plt.legend(dump.keys())
     plt.show()
 
 if __name__=="__main__":
@@ -194,12 +198,12 @@ if __name__=="__main__":
     args = vars(parser.parse_args())
 
     try:
-        rospy.init_node(THIS_NODE_NAME)
         file_path = args['jdir']
         Config.LANGUAGE = args['language']
         Config.TIME_AMOUNT = float(args['time'])
         Config.TIME_FOR_SLEEP = float(args['interval'])
         if args['mode'] == "collect_and_plot":
+            rospy.init_node(THIS_NODE_NAME)
             data_collector = DataCollector()
             file_path = data_collector.process_collection()
         create_plot(file_path)
