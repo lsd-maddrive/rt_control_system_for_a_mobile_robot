@@ -19,14 +19,15 @@ class Json:
     """ 
         Json structure:
         {
-            <pid_0_name>: {<CPU_LOAD_FIELD>: list()}
+            <process_0_name>: {<CPU_LOAD_FIELD>: list()}
             ...
-            <pid_n_name>: {<CPU_LOAD_FIELD>: list()}
+            <process_n_name>: {<CPU_LOAD_FIELD>: list()}
             <total_name>: {<CPU_LOAD_FIELD>: list()}
             <TIME>: list()
         }
     """
     CPU_LOAD_FIELD = 'cpu load'
+    OLD_DATA = 'data'
     MEMORY_FIELD = 'memory'
     TOTAL_NAME = 'total'
     TIME = 'time'
@@ -133,16 +134,18 @@ def create_plot(fileName):
 
     # Show data
     for key in dump:
-        if(key != Json.TIME):
+        if key == Json.OLD_DATA:
+            print("- {} mean cpu load is {}.".format(key, np.mean(dump[key])))
+        elif(key != Json.TIME):
             print("- {} mean cpu load is {}.".format(key, np.mean(dump[key][Json.CPU_LOAD_FIELD])))
         else:
             print("- {} up to {}.".format(key, dump[key][-1]))
 
     # Create plot and show parsed data
     for key in dump:
-        if key == Json.TIME:
-            continue
-        else:
+        if key == Json.OLD_DATA:
+            plt.plot(time, dump[key])
+        elif key != Json.TIME:
             plt.plot(time, dump[key][Json.CPU_LOAD_FIELD])
 
     TITLE = ''
