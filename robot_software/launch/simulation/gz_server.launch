@@ -10,7 +10,7 @@
   <!-- 1. Start Gazebo with empty world -->
   <env name="GAZEBO_MODEL_PATH" value="$(find wr8_description)/worlds:$(find world_creator)/models" />
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find robot_software)/worlds/$(arg gz_world)"/>
+    <arg name="world_name" value="$(find robot_description)/worlds/$(arg gz_world)"/>
     <arg name="paused" value="false"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="gui" value="$(arg gz_client)"/>
