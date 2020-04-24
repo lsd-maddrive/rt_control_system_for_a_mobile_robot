@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--  Start localization stack -->
 <launch>
-  <arg name="map_name" default="world" doc="[world]"/>
+  <arg name="map_name" default="world_gmapping" doc="[world_gmapping]"/>
 
   <node name="map_server" pkg="map_server" type="map_server" args="$(find robot_software)/maps/$(arg map_name).yaml" />
   <include file="$(find robot_software)/launch/navigation_stack/amcl.launch">
