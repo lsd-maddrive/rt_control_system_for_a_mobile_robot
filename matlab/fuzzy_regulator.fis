@@ -1,5 +1,5 @@
 [System]
-Name='fuzzy_regulator2-0.5'
+Name='fuzzy_regulator'
 Type='mamdani'
 Version=2.0
 NumInputs=2
@@ -16,7 +16,7 @@ Name='Error'
 Range=[-1 1]
 NumMFs=3
 MF1='negative':'trimf',[-1.83 -1 0]
-MF2='zero':'trimf',[-0.1 0 0.1]
+MF2='zero':'trimf',[-0.05 0 0.05]
 MF3='positive':'trimf',[0 1 1.833]
 
 [Input2]
@@ -24,7 +24,7 @@ Name='Integral'
 Range=[-1 1]
 NumMFs=3
 MF1='negative':'trimf',[-1.833 -1 0]
-MF2='zero':'trimf',[-0.1 0 0.1]
+MF2='zero':'trimf',[-0.15 0 0.15]
 MF3='positive':'trimf',[0 1 1.833]
 
 [Output1]
@@ -32,7 +32,7 @@ Name='DutyCycle'
 Range=[-1 1]
 NumMFs=3
 MF1='negative':'trimf',[-1.833 -1 0]
-MF2='zero':'trimf',[-0.1 0 0.1]
+MF2='zero':'trimf',[-0.05 0 0.05]
 MF3='positive':'trimf',[0 1 1.833]
 
 [Rules]
