@@ -9,6 +9,7 @@ def delete_model(model_name):
 if __name__=="__main__":
     try:
         rospy.init_node('delete_model_node')
-        delete_model("turtlebot3_burger")
+        model_name = rospy.get_param('~model_name')
+        delete_model(model_name)#"turtlebot3_burger")
     except (rospy.ROSInterruptException, KeyboardInterrupt):
         rospy.logerr('Exception catched')

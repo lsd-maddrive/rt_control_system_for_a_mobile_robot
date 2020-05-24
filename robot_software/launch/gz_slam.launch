@@ -1,20 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
-  <arg name="mapping_algorithm"           default="gmapping"  doc="[gmapping, hector_mapping, slam_karto]"/>
-  <arg name="spawn_x"                     default="0.0"/>
-  <arg name="spawn_y"                     default="0.0"/>
-  <arg name="spawn_yaw"                   default="0.0"/>
-  <arg name="spawn_start_delay"           default="0.1"/>
+  <arg name="mapping_algorithm"     default="gmapping"  doc="[gmapping, hector_mapping, slam_karto]"/>
+  <arg name="is_turtlebot3_burger"  default="false"/>
+  <arg name="is_own_burger"         default="false"/>
+  <arg name="is_own_model"          default="false"/>
+  <arg name="spawn_x"               default="0.0"/>
+  <arg name="spawn_y"               default="0.0"/>
+  <arg name="spawn_yaw"             default="0.0"/>
+  <arg name="spawn_start_delay"     default="0.1"/>
 
   <!-- 1. Delete previous model -->
-  <node pkg="robot_software" type="gz_delete_model.py" name="gz_delete_model" />
+  <group if="$(arg is_turtlebot3_burger)">
+    <node pkg="robot_software" type="gz_delete_model.py" name="gz_delete_model">
+      <param name="model_name" value="turtlebot3_burger"/>
+    </node>
+  </group>
+  <group if="$(arg is_own_burger)">
+    <node pkg="robot_software" type="gz_delete_model.py" name="gz_delete_model">
+      <param name="model_name" value="burger"/>
+    </node>
+  </group>
+  <group if="$(arg is_own_model)">
+    <node pkg="robot_software" type="gz_delete_model.py" name="gz_delete_model">
+      <param name="model_name" value="tracked_robot"/>
+    </node>
+  </group>
 
   <!-- 2. Spawn new model -->
   <include file="$(find timed_roslaunch)/launch/timed_roslaunch.launch">
     <arg name="time" value="$(arg spawn_start_delay)" />
     <arg name="pkg" value="robot_software" />
     <arg name="file" value="gz_spawn_model.launch" />
-    <arg name="value" value="spawn_x:=$(arg spawn_x) spawn_y:=$(arg spawn_y) spawn_yaw:=$(arg spawn_yaw)" />
+    <arg name="value" value="spawn_x:=$(arg spawn_x) spawn_y:=$(arg spawn_y) spawn_yaw:=$(arg spawn_yaw) is_turtlebot3_burger:=$(arg is_turtlebot3_burger) is_own_burger:=$(arg is_own_burger) is_own_model:=$(arg is_own_model)" />
     <arg name="node_name" value="timed_gz_spawn" />
   </include>
 

@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Start simulation -->
 <launch>
-  <arg name="model" default="burger" doc="[waffle, caterpillar_mobile_robot, ...]"/>
-  <arg name="model_type" default=".urdf.xacro" doc="[.urdf.xacro, .sdf, ...]"/>
-  <arg name="robot_description_pkg" default="turtlebot3_description" doc="[turtlebot3_description, robot_description, ...]"/>
   <arg name="gz_client" default="false"/>
   <arg name="gz_world" default="world.world"/>
 
-  <!-- 1. Start Gazebo with empty world -->
   <env name="GAZEBO_MODEL_PATH" value="$(find wr8_description)/worlds:$(find world_creator)/models" />
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find robot_description)/worlds/$(arg gz_world)"/>
@@ -17,10 +13,4 @@
     <arg name="debug" value="false"/>
   </include>
 
-  <!-- 2. Set parameters -->
-  <param name="model" value="$(arg model)"/>
-  <param name="robot_description" command="$(find xacro)/xacro $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
-
-  <!-- 3. Robot state publisher -->
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" />
 </launch>
