@@ -4,6 +4,7 @@
   <arg name="is_turtlebot3_burger"  default="false"/>
   <arg name="is_own_burger"         default="false"/>
   <arg name="is_own_model"          default="false"/>
+  <arg name="run_rviz"              default="true"/>
   <arg name="spawn_x"               default="0.0"/>
   <arg name="spawn_y"               default="0.0"/>
   <arg name="spawn_yaw"             default="0.0"/>
@@ -36,7 +37,9 @@
   </include>
 
   <!-- 3. Run rviz -->
-  <include file="$(find robot_software)/launch/rviz.launch"/> 
+  <group if="$(arg run_rviz)">
+    <include file="$(find robot_software)/launch/rviz.launch"/> 
+  </group>
 
   <!-- 4. Run Navigation settings -->
   <include file="$(find timed_roslaunch)/launch/timed_roslaunch.launch">

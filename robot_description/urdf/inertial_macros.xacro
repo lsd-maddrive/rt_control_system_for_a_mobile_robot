@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<robot name="xacro_properties" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="null_inertial">
+    <inertial>
+      <mass value="0.001"/>
+      <inertia ixx="0.001" ixy="0" ixz="0"
+               iyy="0.001" iyz="0"
+               izz="0.001"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="solid_cuboid_inertial"
+               params="width length height mass *origin">
+    <inertial>
+      <xacro:insert_block name="origin"/>
+      <mass value="${mass}"/>
+      <inertia ixx="${mass * (width * width + height * height) / 12}"
+               ixy="0" ixz="0"
+               iyy="${mass * (length * length + height * height) / 12}"
+               iyz="0"
+               izz="${mass * (width * width + length * length) / 12}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="solid_cylinder_inertial"
+               params="r h mass *origin">
+    <inertial>
+      <xacro:insert_block name="origin"/>
+      <mass value="${mass}"/>
+      <inertia ixx="${mass / 12 * (3 * r * r + h * h)}" ixy="0.0" ixz="0.0"
+               iyy="${mass / 12 * (3 * r * r + h * h)}" iyz="0.0"
+               izz="${mass / 2 * r * r}" />
+    </inertial>
+  </xacro:macro>
+</robot>

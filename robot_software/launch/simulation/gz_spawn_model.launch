@@ -6,20 +6,21 @@
   <arg name="is_own_model"          default="false"/>
   <arg name="spawn_x"               default="0.0"/>
   <arg name="spawn_y"               default="0.0"/>
+  <arg name="spawn_z"               default="0.1"/>
   <arg name="spawn_yaw"             default="0.0"/>
   
   <!-- 1. Spawn a model -->
   <group if="$(arg is_turtlebot3_burger)">
     <param name="robot_description" command="$(find xacro)/xacro $(find turtlebot3_description)/urdf/turtlebot3_burger.urdf.xacro" />
-    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf"  args="-urdf -model turtlebot3_burger -x $(arg spawn_x) -y $(arg spawn_y) -Y $(arg spawn_yaw) -param robot_description"/>
+    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf"  args="-urdf -model turtlebot3_burger -x $(arg spawn_x) -y $(arg spawn_y) -z $(arg spawn_z) -Y $(arg spawn_yaw) -param robot_description"/>
   </group>
   <group if="$(arg is_own_burger)">
     <param name="robot_description" command="$(find xacro)/xacro $(find robot_description)/urdf/burger.urdf.xacro" />
-    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf"  args="-urdf -model burger -x $(arg spawn_x) -y $(arg spawn_y) -Y $(arg spawn_yaw) -param robot_description"/>
+    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf"  args="-urdf -model burger -x $(arg spawn_x) -y $(arg spawn_y) -z $(arg spawn_z) -Y $(arg spawn_yaw) -param robot_description"/>
   </group>
   <group if="$(arg is_own_model)">
     <param name="robot_description" command="$(find xacro)/xacro $(find robot_description)/urdf/tracked_robot.urdf.xacro" />
-    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf"  args="-urdf -model tracked_robot -x $(arg spawn_x) -y $(arg spawn_y) -Y $(arg spawn_yaw) -param robot_description"/>
+    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf"  args="-urdf -model tracked_robot -x $(arg spawn_x) -y $(arg spawn_y) -z $(arg spawn_z) -Y $(arg spawn_yaw) -param robot_description"/>
   </group>
 
   <!-- 2. Robot state publisher -->
