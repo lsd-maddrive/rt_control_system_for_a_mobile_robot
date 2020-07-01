@@ -4,7 +4,7 @@
   <arg name="gz_client" default="false"/>
   <arg name="gz_world" default="world.world"/>
 
-  <env name="GAZEBO_MODEL_PATH" value="$(find wr8_description)/worlds:$(find world_creator)/models" />
+  <env name="GAZEBO_MODEL_PATH" value="$(find robot_description)/models" />
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find robot_description)/worlds/$(arg gz_world)"/>
     <arg name="paused" value="false"/>
