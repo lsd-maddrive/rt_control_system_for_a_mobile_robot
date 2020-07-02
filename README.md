@@ -14,9 +14,9 @@ In result, `echo $ROS_DISTRO` should return `melodic`
 ```
 mkdir -p ~/catkin_ws/src
 cd catkin_ws/src/
-git clone --recursive https://github.com/PonomarevDA/rt_for_mobile_robot_control.git .
+git clone --recursive https://github.com/PonomarevDA/rt_control_system_for_a_mobile_robot.git .
 ```
-Note that you should use --recursive to fetch submodules and use dot in the end of last command so as not to create a directory rt_for_mobile_robot_control inside src folder.
+Note that you should use --recursive to fetch submodules and use dot in the end of last command so as not to create a directory rt_control_system_for_a_mobile_robot inside src folder.
 
 2. Install all dependencies
 - install ROS packages:
