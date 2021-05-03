@@ -1,56 +1,33 @@
 # Real-time system for mobile robot control
 
-### Description
+## Description
 
 This project consist of firmware and software for real time system for tracked mobile robot control.
 - The firmware is based on the [ChibiOS/RT](http://chibios.org/dokuwiki/doku.php) demos for STM32 Nucleo144-F767ZI
 - The software is based on [ROS Melodic](http://wiki.ros.org/melodic) for Raspberry PI and desktop
 
-### Preparation for work:
-##### 1. [Installing ubuntu melodic and environments setup](http://wiki.ros.org/melodic/Installation/Ubuntu)
-In result, `echo $ROS_DISTRO` should return `melodic`
-##### 2. Workspace preparation
-1. Create workspace with any name (for example catkin_ws) and clone this repository to [your workspace]/src folder:
-```
-mkdir -p ~/catkin_ws/src
-cd catkin_ws/src/
-git clone --recursive https://github.com/PonomarevDA/rt_control_system_for_a_mobile_robot.git .
-```
-Note that you should use --recursive to fetch submodules and use dot in the end of last command so as not to create a directory rt_control_system_for_a_mobile_robot inside src folder.
+## Software Requirements
 
-2. Install all dependencies
-- install ROS packages:
-```
-./install_ros_packages.sh
-```
-- (optional) install and activate virtual environment:
-```
-sudo apt install python-virtualenv
-virtualenv -p /usr/bin/python ~/virtualenvironment/diploma
-source ~/virtualenvironment/diploma/bin/activate
-```
-- install python packages:
-```
-pip install -r requirements.txt
-```
+It is assumed you use ubuntu 18.04 with [ROS melodic insalled in the way descripted here](http://wiki.ros.org/melodic/Installation/Ubuntu)
 
-3. Build the workspace code and add automatic workspace settings to ~/.bashrc
-```
-cd ..
-catkin_init_workspace
-catkin build
-source ~/catkin_ws/devel/setup.bash
-echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
-```
-You can check result using `echo $ROS_PACKAGE_PATH`. This command should return 2 paths for system and user workspaces. For example:
-/home/ubuntu/catkin_ws/src:/opt/ros/melodic/share
+## Hardware Requirements
 
-4. (optional) Start up the lidar and stm32 if you want to use them:
+The main hardware are:
+- RPI 2B,
+- STM32 Nucleo144-F767ZI,
+- motors with encoders GM25-370,
+- lidar ydlidar Лидар XV-11 x4.
+
+### Installation and Building:
+
+You can build docker image using [build script](scripts/docker/build_image.sh) or install and build manually using instruction from the [Dockerfile](Dockerfile).
+
+
+### Real usage
+
 ```
 sudo ./init_stm32_and_ydlidar.sh
 ```
-
-### How to start robot
 
 1. Select RPI to run master, set ROS_MASTER_URI and ROS_IP on RPI and PC. You can use `init_env_vars.launch` in this way:
 
@@ -59,10 +36,10 @@ sudo ./init_stm32_and_ydlidar.sh
 2. Run `real_slam.launch` or `real_localization.launch` on RPI
 3. Run `rviz.launch` on desktop
 
-### How to start simulation
+### Usage in Gazebo simulator
 
-1. Run on first terminal session: `gz_server`
-2. Run on second terminal session: `gz_slam.launch` or `gz_localization.launch`
+1. Run on the first terminal session: `gz_server`
+2. Run on the second terminal session: `gz_slam.launch` or `gz_localization.launch`
 
 
 ### Troubleshooting
