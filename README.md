@@ -1,46 +1,84 @@
 # Real-time system for mobile robot control
 
-## Description
+## Brief
 
-This project consist of firmware and software for real time system for tracked mobile robot control.
-- The firmware is based on the [ChibiOS/RT](http://chibios.org/dokuwiki/doku.php) demos for STM32 Nucleo144-F767ZI
-- The software is based on [ROS Melodic](http://wiki.ros.org/melodic) for Raspberry PI and desktop
+This project implements a real time control system for a tracked robot.
 
-## Software Requirements
-
-It is assumed you use ubuntu 18.04 with [ROS melodic insalled in the way descripted here](http://wiki.ros.org/melodic/Installation/Ubuntu)
+It consist of two parts:
+- The firmware implemented a low level control system is based on the [ChibiOS/RT](http://chibios.org/dokuwiki/doku.php) demos for STM32 Nucleo144-F767ZI.
+- The software implemented a high level control system is based on the [ROS Melodic](http://wiki.ros.org/melodic) for Raspberry PI and desktop. It mainly uses `move_base` and different SLAM packages: `slam_karto`, `gmapping` and `hector_mapping`.
 
 ## Hardware Requirements
 
-The main hardware are:
-- RPI 2B,
+The main hardware components are:
+- Raspberry PI 2B (RPI),
 - STM32 Nucleo144-F767ZI,
 - motors with encoders GM25-370,
-- lidar ydlidar Лидар XV-11 x4.
+- lidar ydlidar x4.
+
+## Software Requirements
+
+- It is assumed you use ubuntu 18.04 with ROS melodic insalled in the way described in [the official tutorial](http://wiki.ros.org/melodic/Installation/Ubuntu) on your computer.
+
+- The RPI is based on Ubuntu Mate 18.04.
+
+- Python 2.7
 
 ### Installation and Building:
 
 You can build docker image using [build script](scripts/docker/build_image.sh) or install and build manually using instruction from the [Dockerfile](Dockerfile).
 
-
 ### Real usage
+
+1. You should create symlinks for stm32 and ydlidar:
 
 ```
 sudo ./init_stm32_and_ydlidar.sh
 ```
 
-1. Select RPI to run master, set ROS_MASTER_URI and ROS_IP on RPI and PC. You can use `init_env_vars.launch` in this way:
+2. Then setup `ROS_MASTER` and `ROS_IP` on RPI and PC:
 
-`. ./init_env_vars.launch`
+`source init_env_vars.launch`
 
-2. Run `real_slam.launch` or `real_localization.launch` on RPI
-3. Run `rviz.launch` on desktop
+3. Run SLAM or Localization on RPI:
+
+```
+roslaunch wr8_software real_slam.launch
+```
+
+or
+
+```
+roslaunch wr8_software real_localization.launch
+```
+
+4. Run `RVUZ` on desktop to monitor the robot position and to setup desired goals:
+
+```
+roslaunch wr8_software rviz.launch
+```
 
 ### Usage in Gazebo simulator
 
-1. Run on the first terminal session: `gz_server`
-2. Run on the second terminal session: `gz_slam.launch` or `gz_localization.launch`
+1. Run on the first terminal session:
 
+```
+roslaunch wr8_software gz_server.launch
+```
+
+2. Run on the second terminal session to spawn a robot with SLAM or Localization algorithm:
+
+```
+roslaunch wr8_software gz_slam.launch
+```
+
+or
+
+```
+roslaunch wr8_software gz_localization.launch
+```
+
+Here launching is divided into two files to have an ability to spawn several robots simultaniously. But this feature is not ready yet.
 
 ### Troubleshooting
 
@@ -65,5 +103,3 @@ If you have a problem with urdf model visualization in rviz in ros melodic, read
 * [ydlidar x4 datasheet and manuals](http://www.ydlidar.com/download/)
 * [ydlidar ros package - new repository](https://github.com/YDLIDAR/ydlidar_ros/)
 * [ydlidar ros package - old repository](https://github.com/EAIBOT/ydlidar/)
-
-
